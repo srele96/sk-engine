@@ -15,9 +15,6 @@ Add to `.vscode/settings.json` to improve autocomplete:
 ```json
 {
   "clang-tidy.compilerArgs": [
-    // Add library for experiment using mongoose library to shut up the
-    // clang-tidy and tell it where it can find includes
-    "-IC:/Users/Srecko/Documents/MyProjects/Private/container-sk-experiments/sk-experiments/cpp/experiments/asd/include",
     "-IC:/Users/Srecko/Documents/MyProjects/Private/container-sk-experiments/sk-engine/include",
     "-IC:/Users/Srecko/Documents/MyProjects/Private/container-sk-experiments/sk-engine/build/vcpkg_installed/x64-windows/include"
   ]
