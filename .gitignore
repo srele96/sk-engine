@@ -21,6 +21,10 @@ build/
 *.dylib
 *.dll
 
+# Fortran module files
+*.mod
+*.smod
+
 # Compiled Static libraries
 *.lai
 *.la
@@ -31,32 +35,3 @@ build/
 *.exe
 *.out
 *.app
-*.i*86
-*.x86_64
-*.hex
-
-# IDE files (e.g., Visual Studio)
-.vs/
-*.sln
-*.suo
-*.user
-*.userosscache
-*.sdf
-*.ipch
-*.VC.db
-*.VC.VC.opendb
-
-# Build files (cmake, make)
-CMakeLists.txt.user
-CMakeCache.txt
-CMakeFiles/
-Makefile
-*.make
-*.cmake
-*.cbp
-
-# Other files
-*.log
-*.swp
-*.bak
-*.orig
