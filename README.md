@@ -1,4 +1,6 @@
-# Render engine
+# sk-engine
+
+Engine for skill demonstration purposes assembled without tutorials.
 
 ## Creation process
 
@@ -10,5 +12,3 @@ Whether you are creating a whole world or just placing one model into a web page
 - Camera
 - Light
 - Object
-
-
