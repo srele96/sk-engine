@@ -6,7 +6,7 @@
 int main() {
   // Initialize GLFW
   if (!glfwInit()) {
-    return -1;
+    return 1;
   }
 
   // Specify we want OpenGL 3.3
@@ -19,7 +19,7 @@ int main() {
       glfwCreateWindow(800, 600, "GLFW Glad Test Window", NULL, NULL);
   if (!window) {
     glfwTerminate();
-    return -1;
+    return 1;
   }
 
   // Make the window's context current
@@ -27,7 +27,7 @@ int main() {
 
   // Load OpenGL functions using glad
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-    return -1;
+    return 1;
   }
 
   // Loop until the user closes the window
