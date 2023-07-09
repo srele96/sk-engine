@@ -3,6 +3,7 @@
 
 #include "GLAD/glad.h"
 #include "GLFW/glfw3.h"
+#include "glm/glm.hpp"
 
 // Vertex Shader
 const GLchar *vertexShaderSource{R"glsl(
@@ -43,6 +44,14 @@ std::vector<GLfloat> square{
 };
 
 int main() {
+  glm::vec3 v1(1.0f, 2.0f, 3.0f);
+  glm::vec3 v2(4.0f, 5.0f, 6.0f);
+
+  glm::vec3 result = v1 + v2;
+
+  std::cout << "Result: (" << result.x << ", " << result.y << ", " << result.z
+            << ")\n";
+
   // Initialize GLFW
   if (!glfwInit()) {
     std::cout << "Failed to initialize GLFW\n";
@@ -125,7 +134,8 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, triangle.size() * sizeof(GLfloat),
                  triangle.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat),
+                          nullptr);
     glEnableVertexAttribArray(0);
 
     // Draw the first triangle using the first shader program
@@ -155,7 +165,8 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, VBO_square);
     glBufferData(GL_ARRAY_BUFFER, square.size() * sizeof(GLfloat),
                  square.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat),
+                          nullptr);
     glEnableVertexAttribArray(0);
 
     glUniform2f(offsetLocation2, -0.4f, -0.4f);
