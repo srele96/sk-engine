@@ -43,13 +43,34 @@ std::vector<GLfloat> square{
     0.5f,  0.5f,  0.0f  // Top-right vertex of the square
 };
 
-void OnCursorPosEvent(GLFWwindow *window, double xpos, double ypos) {
-  std::cout << "Cursor position: (" << xpos << ", " << ypos << ")\n";
+// Frame timing
+GLfloat deltaTime = 0.0f;
+GLfloat lastFrame = 0.0f;
+
+const int initialWidth = 800;
+const int initialHeight = 600;
+int width = initialWidth;
+int height = initialHeight;
+
+void onSetCursorPosEvent(GLFWwindow *window, double xpos, double ypos) {
+  // TODO:
 }
 
-void OnKeyEvent(GLFWwindow *window, int key, int scancode, int action,
-                int mods) {
-  std::cout << "Key: " << key << "\n";
+void onSetKeyEvent(GLFWwindow *window, int key, int scancode, int action,
+                   int mods) {
+  // TODO:
+}
+
+void onSetWindowSize(GLFWwindow *window, int width, int height) {
+  glViewport(0, 0, width, height);
+  ::width = width;
+  ::height = height;
+}
+
+void updateDeltaTime() {
+  GLfloat currentFrame = glfwGetTime();
+  deltaTime = currentFrame - lastFrame;
+  lastFrame = currentFrame;
 }
 
 int main() {
@@ -66,7 +87,7 @@ int main() {
 
   // Create a windowed mode window and its OpenGL context
   GLFWwindow *window =
-      glfwCreateWindow(800, 600, "GLFW Glad Test Window", NULL, NULL);
+      glfwCreateWindow(width, height, "GLFW Glad Test Window", NULL, NULL);
   if (!window) {
     std::cerr << "Failed to create GLFW window\n";
     glfwTerminate();
@@ -118,11 +139,15 @@ int main() {
   GLuint offsetLocation1 = glGetUniformLocation(shaderProgram1, "offset");
   GLuint offsetLocation2 = glGetUniformLocation(shaderProgram2, "offset");
 
-  glfwSetCursorPosCallback(window, OnCursorPosEvent);
-  glfwSetKeyCallback(window, OnKeyEvent);
+  glfwSetCursorPosCallback(window, onSetCursorPosEvent);
+  glfwSetKeyCallback(window, onSetKeyEvent);
+  glfwSetWindowSizeCallback(window, onSetWindowSize);
 
   // Render loop
   while (!glfwWindowShouldClose(window)) {
+    glfwPollEvents();
+    updateDeltaTime();
+
     // Clear the colorbuffer
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -181,7 +206,6 @@ int main() {
 
     // Swap buffers and poll IO events
     glfwSwapBuffers(window);
-    glfwPollEvents();
   }
 
   glDeleteProgram(shaderProgram1);
