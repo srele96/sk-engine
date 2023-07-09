@@ -67,7 +67,7 @@ int main() {
   glfwMakeContextCurrent(window);
 
   // Load OpenGL functions using glad
-  if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+  if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
     std::cout << "Failed to initialize GLAD" << std::endl;
     return -1;
   }
