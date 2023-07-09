@@ -1,24 +1,46 @@
 #include <iostream>
 #include <vector>
-#define _USE_MATH_DEFINES
-#include <cmath>
 
 #include "GLAD/glad.h"
 #include "GLFW/glfw3.h"
 
-// Vertex data for a unit sphere
-const float radius = 0.5f;
-const int sectorCount = 36;
-const int stackCount = 18;
+// Vertex Shader
+const GLchar *vertexShaderSource{R"glsl(
+    #version 330 core
+    layout (location = 0) in vec3 aPos;
+    uniform vec2 offset;
+    void main() {
+        gl_Position = vec4(aPos.x + offset.x, aPos.y + offset.y, aPos.z, 1.0);
+    }
+)glsl"};
 
-struct Vertex {
-  float position[3];
-};
+// Red
+const GLchar *fragmentShaderSource1{R"glsl(
+    #version 330 core
+    out vec4 FragColor;
+    void main() {
+        FragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f); // Red color
+    }
+)glsl"};
+
+// Blue
+const GLchar *fragmentShaderSource2{
+    R"glsl(
+    #version 330 core
+    out vec4 FragColor;
+    void main() {
+        FragColor = vec4(0.0f, 0.0f, 1.0f, 1.0f); // Blue color
+    }
+)glsl"};
+
+std::vector<GLfloat> vertices{-0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
+                              0.0f,  0.0f,  0.5f, 0.0f};
 
 int main() {
   // Initialize GLFW
   if (!glfwInit()) {
-    return 1;
+    std::cout << "Failed to initialize GLFW" << std::endl;
+    return -1;
   }
 
   // Specify we want OpenGL 3.3
@@ -30,8 +52,9 @@ int main() {
   GLFWwindow *window =
       glfwCreateWindow(800, 600, "GLFW Glad Test Window", NULL, NULL);
   if (!window) {
+    std::cout << "Failed to create GLFW window" << std::endl;
     glfwTerminate();
-    return 1;
+    return -1;
   }
 
   // Make the window's context current
@@ -39,126 +62,92 @@ int main() {
 
   // Load OpenGL functions using glad
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-    return 1;
+    std::cout << "Failed to initialize GLAD" << std::endl;
+    return -1;
   }
 
-  // Define vertex data for a unit sphere
-  std::vector<Vertex> vertices;
-  std::vector<GLuint> indices;
+  // Vertex array object
+  unsigned int VAO;
+  glGenVertexArrays(1, &VAO);
+  glBindVertexArray(VAO);
 
-  for (int i = 0; i <= stackCount; ++i) {
-    float stackAngle = M_PI / 2 - i * (M_PI / stackCount);
-    float xy = radius * std::cos(stackAngle);
-    float z = radius * std::sin(stackAngle);
-
-    for (int j = 0; j <= sectorCount; ++j) {
-      float sectorAngle = j * (2 * M_PI / sectorCount);
-      float x = xy * std::cos(sectorAngle);
-      float y = xy * std::sin(sectorAngle);
-
-      Vertex vertex;
-      vertex.position[0] = x;
-      vertex.position[1] = y;
-      vertex.position[2] = z;
-
-      vertices.push_back(vertex);
-    }
-  }
-
-  for (int i = 0; i < stackCount; ++i) {
-    int k1 = i * (sectorCount + 1);
-    int k2 = k1 + sectorCount + 1;
-
-    for (int j = 0; j < sectorCount; ++j, ++k1, ++k2) {
-      indices.push_back(k1);
-      indices.push_back(k2);
-      indices.push_back(k1 + 1);
-      indices.push_back(k2);
-      indices.push_back(k2 + 1);
-      indices.push_back(k1 + 1);
-    }
-  }
-
-  // Create a vertex buffer object (VBO) to store the vertex data
-  GLuint vbo;
-  glGenBuffers(1, &vbo);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex),
+  // Vertex buffer object
+  unsigned int VBO;
+  glGenBuffers(1, &VBO);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat),
                vertices.data(), GL_STATIC_DRAW);
 
-  // Create an element buffer object (EBO) to store the index data
-  GLuint ebo;
-  glGenBuffers(1, &ebo);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint),
-               indices.data(), GL_STATIC_DRAW);
-
-  // Create a vertex array object (VAO) to encapsulate the VBO and EBO bindings
-  // and attribute configurations
-  GLuint vao;
-  glGenVertexArrays(1, &vao);
-  glBindVertexArray(vao);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)0);
 
-  // Create and compile shaders for the vertex and fragment stages
-  const char *vertexShaderSource = R"(
-        #version 330 core
-        layout (location = 0) in vec3 aPosition;
-        void main() {
-            gl_Position = vec4(aPosition, 1.0);
-        }
-    )";
-  GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+  // Generate shaders for box1 and box2
+  unsigned int vertexShader, fragmentShader1, fragmentShader2;
+  vertexShader = glCreateShader(GL_VERTEX_SHADER);
   glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
   glCompileShader(vertexShader);
 
-  const char *fragmentShaderSource = R"(
-        #version 330 core
-        out vec4 FragColor;
-        void main() {
-            FragColor = vec4(1.0, 0.5, 0.2, 1.0);
-        }
-    )";
-  GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-  glCompileShader(fragmentShader);
+  fragmentShader1 = glCreateShader(GL_FRAGMENT_SHADER);
+  glShaderSource(fragmentShader1, 1, &fragmentShaderSource1, NULL);
+  glCompileShader(fragmentShader1);
 
-  // Create a shader program and link the vertex and fragment shaders
-  GLuint shaderProgram = glCreateProgram();
-  glAttachShader(shaderProgram, vertexShader);
-  glAttachShader(shaderProgram, fragmentShader);
-  glLinkProgram(shaderProgram);
-  glUseProgram(shaderProgram);
+  fragmentShader2 = glCreateShader(GL_FRAGMENT_SHADER);
+  glShaderSource(fragmentShader2, 1, &fragmentShaderSource2, NULL);
+  glCompileShader(fragmentShader2);
 
-  // Loop until the user closes the window
+  // Generate shader programs
+  unsigned int shaderProgram1, shaderProgram2;
+  shaderProgram1 = glCreateProgram();
+  glAttachShader(shaderProgram1, vertexShader);
+  glAttachShader(shaderProgram1, fragmentShader1);
+  glLinkProgram(shaderProgram1);
+
+  shaderProgram2 = glCreateProgram();
+  glAttachShader(shaderProgram2, vertexShader);
+  glAttachShader(shaderProgram2, fragmentShader2);
+  glLinkProgram(shaderProgram2);
+
+  // Delete shaders as they're linked into our program now and no longer
+  // necessary
+  glDeleteShader(vertexShader);
+  glDeleteShader(fragmentShader1);
+  glDeleteShader(fragmentShader2);
+
+  // Offset locations for both shader programs
+  int offsetLocation1 = glGetUniformLocation(shaderProgram1, "offset");
+  int offsetLocation2 = glGetUniformLocation(shaderProgram2, "offset");
+
+  // Render loop
   while (!glfwWindowShouldClose(window)) {
-    // Set clear color
+    // Clear the colorbuffer
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    // Clear the buffer
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Draw the sphere
-    glBindVertexArray(vao);
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    // Draw the first triangle using the first shader program
+    glUseProgram(shaderProgram1);
+    glUniform2f(offsetLocation1, 0.1f,
+                0.1f); // Use a different offset for each triangle
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 
-    // Swap front and back buffers
+    // Draw the second triangle using the second shader program
+    glUseProgram(shaderProgram2);
+    glUniform2f(offsetLocation2, -0.1f,
+                -0.1f); // Use a different offset for each triangle
+    glDrawArrays(GL_TRIANGLES, 0,
+                 3); // We just change the shader, not the vertices
+
+    // Swap buffers and poll IO events
     glfwSwapBuffers(window);
-
-    // Poll for and process events
     glfwPollEvents();
   }
 
-  // Cleanup
-  glDeleteProgram(shaderProgram);
-  glDeleteShader(vertexShader);
-  glDeleteShader(fragmentShader);
-  glDeleteBuffers(1, &vbo);
-  glDeleteBuffers(1, &ebo);
-  glDeleteVertexArrays(1, &vao);
+  // De-allocate all resources
+  glDeleteVertexArrays(1, &VAO);
+  glDeleteBuffers(1, &VBO);
+  glDeleteProgram(shaderProgram1);
+  glDeleteProgram(shaderProgram2);
 
+  // Terminate GLFW
   glfwTerminate();
   return 0;
 }
