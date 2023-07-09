@@ -33,8 +33,14 @@ const GLchar *fragmentShaderSource2{
     }
 )glsl"};
 
-std::vector<GLfloat> vertices{-0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
+std::vector<GLfloat> triangle{-0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
                               0.0f,  0.0f,  0.5f, 0.0f};
+std::vector<GLfloat> square{
+    -0.5f, -0.5f, 0.0f, // Bottom-left vertex of the square
+    0.5f,  -0.5f, 0.0f, // Bottom-right vertex of the square
+    -0.5f, 0.5f,  0.0f, // Top-left vertex of the square
+    0.5f,  0.5f,  0.0f  // Top-right vertex of the square
+};
 
 int main() {
   // Initialize GLFW
@@ -66,37 +72,22 @@ int main() {
     return -1;
   }
 
-  // Vertex array object
-  unsigned int VAO;
-  glGenVertexArrays(1, &VAO);
-  glBindVertexArray(VAO);
-
-  // Vertex buffer object
-  unsigned int VBO;
-  glGenBuffers(1, &VBO);
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat),
-               vertices.data(), GL_STATIC_DRAW);
-
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-  glEnableVertexAttribArray(0);
-
   // Generate shaders for box1 and box2
-  unsigned int vertexShader, fragmentShader1, fragmentShader2;
+  GLuint vertexShader, fragmentShader1, fragmentShader2;
   vertexShader = glCreateShader(GL_VERTEX_SHADER);
-  glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+  glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
   glCompileShader(vertexShader);
 
   fragmentShader1 = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(fragmentShader1, 1, &fragmentShaderSource1, NULL);
+  glShaderSource(fragmentShader1, 1, &fragmentShaderSource1, nullptr);
   glCompileShader(fragmentShader1);
 
   fragmentShader2 = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(fragmentShader2, 1, &fragmentShaderSource2, NULL);
+  glShaderSource(fragmentShader2, 1, &fragmentShaderSource2, nullptr);
   glCompileShader(fragmentShader2);
 
   // Generate shader programs
-  unsigned int shaderProgram1, shaderProgram2;
+  GLuint shaderProgram1, shaderProgram2;
   shaderProgram1 = glCreateProgram();
   glAttachShader(shaderProgram1, vertexShader);
   glAttachShader(shaderProgram1, fragmentShader1);
@@ -114,14 +105,28 @@ int main() {
   glDeleteShader(fragmentShader2);
 
   // Offset locations for both shader programs
-  int offsetLocation1 = glGetUniformLocation(shaderProgram1, "offset");
-  int offsetLocation2 = glGetUniformLocation(shaderProgram2, "offset");
+  GLuint offsetLocation1 = glGetUniformLocation(shaderProgram1, "offset");
+  GLuint offsetLocation2 = glGetUniformLocation(shaderProgram2, "offset");
 
   // Render loop
   while (!glfwWindowShouldClose(window)) {
     // Clear the colorbuffer
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    // Vertex array object
+    GLuint VAO;
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+
+    // Vertex buffer object
+    GLuint VBO;
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, triangle.size() * sizeof(GLfloat),
+                 triangle.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+    glEnableVertexAttribArray(0);
 
     // Draw the first triangle using the first shader program
     glUseProgram(shaderProgram1);
@@ -136,14 +141,34 @@ int main() {
     glDrawArrays(GL_TRIANGLES, 0,
                  3); // We just change the shader, not the vertices
 
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+
+    // Vertex buffer object for square
+    GLuint VAO_square;
+    glGenVertexArrays(1, &VAO_square);
+    glBindVertexArray(VAO_square);
+
+    // Vertex buffer object
+    GLuint VBO_square;
+    glGenBuffers(1, &VBO_square);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_square);
+    glBufferData(GL_ARRAY_BUFFER, square.size() * sizeof(GLfloat),
+                 square.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+    glEnableVertexAttribArray(0);
+
+    glUniform2f(offsetLocation2, -0.4f, -0.4f);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+    glDeleteVertexArrays(1, &VAO_square);
+    glDeleteBuffers(1, &VBO_square);
+
     // Swap buffers and poll IO events
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
 
-  // De-allocate all resources
-  glDeleteVertexArrays(1, &VAO);
-  glDeleteBuffers(1, &VBO);
   glDeleteProgram(shaderProgram1);
   glDeleteProgram(shaderProgram2);
 
