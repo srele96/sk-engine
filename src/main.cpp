@@ -45,7 +45,7 @@ std::vector<GLfloat> square{
 int main() {
   // Initialize GLFW
   if (!glfwInit()) {
-    std::cout << "Failed to initialize GLFW" << std::endl;
+    std::cout << "Failed to initialize GLFW\n";
     return -1;
   }
 
@@ -58,7 +58,7 @@ int main() {
   GLFWwindow *window =
       glfwCreateWindow(800, 600, "GLFW Glad Test Window", NULL, NULL);
   if (!window) {
-    std::cout << "Failed to create GLFW window" << std::endl;
+    std::cout << "Failed to create GLFW window\n";
     glfwTerminate();
     return -1;
   }
@@ -68,7 +68,7 @@ int main() {
 
   // Load OpenGL functions using glad
   if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
-    std::cout << "Failed to initialize GLAD" << std::endl;
+    std::cout << "Failed to initialize GLAD\n";
     return -1;
   }
 
@@ -125,7 +125,7 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, triangle.size() * sizeof(GLfloat),
                  triangle.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr);
     glEnableVertexAttribArray(0);
 
     // Draw the first triangle using the first shader program
@@ -155,7 +155,7 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, VBO_square);
     glBufferData(GL_ARRAY_BUFFER, square.size() * sizeof(GLfloat),
                  square.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr);
     glEnableVertexAttribArray(0);
 
     glUniform2f(offsetLocation2, -0.4f, -0.4f);
