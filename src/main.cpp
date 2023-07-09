@@ -55,8 +55,8 @@ void OnKeyEvent(GLFWwindow *window, int key, int scancode, int action,
 int main() {
   // Initialize GLFW
   if (!glfwInit()) {
-    std::cout << "Failed to initialize GLFW\n";
-    return -1;
+    std::cerr << "Failed to initialize GLFW\n";
+    return EXIT_FAILURE;
   }
 
   // Specify we want OpenGL 3.3
@@ -68,9 +68,9 @@ int main() {
   GLFWwindow *window =
       glfwCreateWindow(800, 600, "GLFW Glad Test Window", NULL, NULL);
   if (!window) {
-    std::cout << "Failed to create GLFW window\n";
+    std::cerr << "Failed to create GLFW window\n";
     glfwTerminate();
-    return -1;
+    return EXIT_FAILURE;
   }
 
   // Make the window's context current
@@ -78,8 +78,8 @@ int main() {
 
   // Load OpenGL functions using glad
   if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
-    std::cout << "Failed to initialize GLAD\n";
-    return -1;
+    std::cerr << "Failed to initialize GLAD\n";
+    return EXIT_FAILURE;
   }
 
   // Generate shaders for box1 and box2
@@ -189,5 +189,5 @@ int main() {
 
   // Terminate GLFW
   glfwTerminate();
-  return 0;
+  return EXIT_SUCCESS;
 }
