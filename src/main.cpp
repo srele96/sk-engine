@@ -43,6 +43,15 @@ std::vector<GLfloat> square{
     0.5f,  0.5f,  0.0f  // Top-right vertex of the square
 };
 
+void OnCursorPosEvent(GLFWwindow *window, double xpos, double ypos) {
+  std::cout << "Cursor position: (" << xpos << ", " << ypos << ")\n";
+}
+
+void OnKeyEvent(GLFWwindow *window, int key, int scancode, int action,
+                int mods) {
+  std::cout << "Key: " << key << "\n";
+}
+
 int main() {
   glm::vec3 v1(1.0f, 2.0f, 3.0f);
   glm::vec3 v2(4.0f, 5.0f, 6.0f);
@@ -116,6 +125,9 @@ int main() {
   // Offset locations for both shader programs
   GLuint offsetLocation1 = glGetUniformLocation(shaderProgram1, "offset");
   GLuint offsetLocation2 = glGetUniformLocation(shaderProgram2, "offset");
+
+  glfwSetCursorPosCallback(window, OnCursorPosEvent);
+  glfwSetKeyCallback(window, OnKeyEvent);
 
   // Render loop
   while (!glfwWindowShouldClose(window)) {
