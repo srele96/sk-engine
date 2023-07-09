@@ -2,7 +2,7 @@ add_executable(
   render-engine
 
   ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/glad.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/GLAD/glad.c
 )
 
 target_include_directories(
