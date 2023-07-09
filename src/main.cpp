@@ -61,10 +61,9 @@ void onSetKeyEvent(GLFWwindow *window, int key, int scancode, int action,
   // TODO:
 }
 
-void onSetWindowSize(GLFWwindow *window, int width, int height) {
-  glViewport(0, 0, width, height);
-  ::width = width;
-  ::height = height;
+void onSetWindowSize(GLFWwindow *window, int w, int h) {
+  width = w;
+  height = h;
 }
 
 void updateDeltaTime() {
@@ -147,6 +146,8 @@ int main() {
   while (!glfwWindowShouldClose(window)) {
     glfwPollEvents();
     updateDeltaTime();
+
+    glViewport(0, 0, width, height);
 
     // Clear the colorbuffer
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
