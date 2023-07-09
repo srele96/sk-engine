@@ -171,16 +171,16 @@ int main() {
 
     // Draw the first triangle using the first shader program
     glUseProgram(shaderProgram1);
-    glUniform2f(offsetLocation1, 0.1f,
-                0.1f); // Use a different offset for each triangle
+    // Use a different offset for each triangle
+    glUniform2f(offsetLocation1, 0.1f, 0.1f);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
     // Draw the second triangle using the second shader program
     glUseProgram(shaderProgram2);
-    glUniform2f(offsetLocation2, -0.1f,
-                -0.1f); // Use a different offset for each triangle
-    glDrawArrays(GL_TRIANGLES, 0,
-                 3); // We just change the shader, not the vertices
+    // Use a different offset for each triangle
+    glUniform2f(offsetLocation2, -0.1f, -0.1f);
+    // We just change the shader, not the vertices
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
