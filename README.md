@@ -36,4 +36,4 @@ That would yield me some mental images of how it fits and works together, how to
 
 With those fundamentals I could approach conceptual design again and hopefully make it work. I disliked the feeling that I don't understand every single line of code because I had fear to change stuff because I didn't know if it will break something. However, I could make all of that work together, so I guess my conceptual understanding was solid because I knew what logic I need and where to place it. Obviously, code wouldn't work if I didn't know how it works... duh!
 
-![Two triangles and square](./picture/two-triangles-and-square.png)
+[See pictures of the process.](./picture/)
