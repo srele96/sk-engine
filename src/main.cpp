@@ -7,7 +7,7 @@
 
 // Vertex Shader
 const GLchar *vertexShaderSource{R"glsl(
-    #version 330 core
+    #version 430 core
     layout (location = 0) in vec3 aPos;
     uniform vec2 offset;
     void main() {
@@ -17,7 +17,7 @@ const GLchar *vertexShaderSource{R"glsl(
 
 // Red
 const GLchar *fragmentShaderSource1{R"glsl(
-    #version 330 core
+    #version 430 core
     out vec4 FragColor;
     void main() {
         FragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f); // Red color
@@ -27,7 +27,7 @@ const GLchar *fragmentShaderSource1{R"glsl(
 // Blue
 const GLchar *fragmentShaderSource2{
     R"glsl(
-    #version 330 core
+    #version 430 core
     out vec4 FragColor;
     void main() {
         FragColor = vec4(0.0f, 0.0f, 1.0f, 1.0f); // Blue color
@@ -79,8 +79,7 @@ int main() {
     return EXIT_FAILURE;
   }
 
-  // Specify we want OpenGL 3.3
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
@@ -101,6 +100,9 @@ int main() {
     std::cerr << "Failed to initialize GLAD\n";
     return EXIT_FAILURE;
   }
+
+  const GLubyte *glVersion{glGetString(GL_VERSION)};
+  std::cout << "OpenGL Version: " << glVersion << "\n";
 
   // Generate shaders for box1 and box2
   GLuint vertexShader, fragmentShader1, fragmentShader2;
