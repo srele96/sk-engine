@@ -3,9 +3,7 @@
 
 #include "GLAD/glad.h"
 #include "GLFW/glfw3.h"
-#include "glm/glm.hpp"
 
-// Vertex Shader
 const GLchar *vertexShaderSource{R"glsl(
     #version 430 core
     layout (location = 0) in vec3 aPos;
@@ -15,7 +13,6 @@ const GLchar *vertexShaderSource{R"glsl(
     }
 )glsl"};
 
-// Red
 const GLchar *fragmentShaderSource1{R"glsl(
     #version 430 core
     out vec4 FragColor;
@@ -24,7 +21,6 @@ const GLchar *fragmentShaderSource1{R"glsl(
     }
 )glsl"};
 
-// Blue
 const GLchar *fragmentShaderSource2{
     R"glsl(
     #version 430 core
@@ -43,7 +39,6 @@ std::vector<GLfloat> square{
     0.5f,  0.5f,  0.0f  // Top-right vertex of the square
 };
 
-// Frame timing
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
 
