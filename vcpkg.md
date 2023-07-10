@@ -13,3 +13,15 @@ Build:
 ```PowerShell
 cmake --build build
 ```
+
+Run:
+
+```powershell
+./build/src/sk-engine
+```
+
+Build then run:
+
+```powershell
+cmake --build build; ./build/src/sk-engine
+```

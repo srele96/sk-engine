@@ -1,5 +1,5 @@
 add_executable(
-  render-engine
+  sk-engine
 
   ${PROJECT_SOURCE_DIR}/include/GLAD/glad.c
 
@@ -7,14 +7,14 @@ add_executable(
 )
 
 target_include_directories(
-  render-engine
+  sk-engine
   PRIVATE
   # Not sure if adding path like this is great practice of CMake.
   ${PROJECT_SOURCE_DIR}/include
 )
 
 target_link_libraries(
-  render-engine
+  sk-engine
   PRIVATE
   glfw
   OpenGL::GL
