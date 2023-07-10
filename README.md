@@ -37,3 +37,9 @@ That would yield me some mental images of how it fits and works together, how to
 With those fundamentals I could approach conceptual design again and hopefully make it work. I disliked the feeling that I don't understand every single line of code because I had fear to change stuff because I didn't know if it will break something. However, I could make all of that work together, so I guess my conceptual understanding was solid because I knew what logic I need and where to place it. Obviously, code wouldn't work if I didn't know how it works... duh!
 
 [See pictures of the process.](./picture/)
+
+### It is a lot...
+
+After digging through the `Babylon.js` engine and attempts to figure out all the math required to setup camera, I feel like it is a lot... In their engine I saw that they have at least three cameras and they involve matrix computations. Matrices on their own are OK, while I am not that great with trigonometry because I need practice. I learned how much math the engine requires because all data that goes through the engine relies on mathematical computations. Not even the `glm` library helps with math if I don't have in my mind how it fits together. Once one matrix fails and doesn't do what I expect it to, that's it, I don't know which value is messing it up.
+
+OpenGL and learning that on it's own is fine, however there is a lot math going on which I should focus and learn to effectively work with computer graphics. Currently it seems primary targets are linear algebra and trigonometry, however I believe there are other areas of math that play crucial role. Perhaps algorithms for object surfaces.

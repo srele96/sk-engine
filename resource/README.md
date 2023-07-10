@@ -7,7 +7,6 @@ A list of some of the resources I've read:
 - [Uniform Buffer Object](https://gist.github.com/jialiang/2880d4cc3364df117320e8cb324c2880)
 - [Uniform Buffet Object - Youtube](https://www.youtube.com/watch?v=JPvbRko9lBg)
 - [Learnopengl - Advanced GLSL, Uniform Buffer Object](https://learnopengl.com/Advanced-OpenGL/Advanced-GLSL)
-- []()
 
 ## OpenGL version fallback with GLFW
 
