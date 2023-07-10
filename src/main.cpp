@@ -73,7 +73,6 @@ void updateDeltaTime() {
 }
 
 int main() {
-  // Initialize GLFW
   if (!glfwInit()) {
     std::cerr << "Failed to initialize GLFW\n";
     return EXIT_FAILURE;
@@ -83,7 +82,6 @@ int main() {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  // Create a windowed mode window and its OpenGL context
   GLFWwindow *window =
       glfwCreateWindow(width, height, "GLFW Glad Test Window", NULL, NULL);
   if (!window) {
@@ -92,10 +90,8 @@ int main() {
     return EXIT_FAILURE;
   }
 
-  // Make the window's context current
   glfwMakeContextCurrent(window);
 
-  // Load OpenGL functions using glad
   if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
     std::cerr << "Failed to initialize GLAD\n";
     return EXIT_FAILURE;
@@ -104,39 +100,33 @@ int main() {
   const GLubyte *glVersion{glGetString(GL_VERSION)};
   std::cout << "OpenGL Version: " << glVersion << "\n";
 
-  // Generate shaders for box1 and box2
-  GLuint vertexShader, fragmentShader1, fragmentShader2;
+  GLuint vertexShader;
   vertexShader = glCreateShader(GL_VERTEX_SHADER);
   glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
   glCompileShader(vertexShader);
 
-  fragmentShader1 = glCreateShader(GL_FRAGMENT_SHADER);
+  GLuint fragmentShader1 = glCreateShader(GL_FRAGMENT_SHADER);
   glShaderSource(fragmentShader1, 1, &fragmentShaderSource1, nullptr);
   glCompileShader(fragmentShader1);
 
-  fragmentShader2 = glCreateShader(GL_FRAGMENT_SHADER);
+  GLuint fragmentShader2 = glCreateShader(GL_FRAGMENT_SHADER);
   glShaderSource(fragmentShader2, 1, &fragmentShaderSource2, nullptr);
   glCompileShader(fragmentShader2);
 
-  // Generate shader programs
-  GLuint shaderProgram1, shaderProgram2;
-  shaderProgram1 = glCreateProgram();
+  GLuint shaderProgram1 = glCreateProgram();
   glAttachShader(shaderProgram1, vertexShader);
   glAttachShader(shaderProgram1, fragmentShader1);
   glLinkProgram(shaderProgram1);
 
-  shaderProgram2 = glCreateProgram();
+  GLuint shaderProgram2 = glCreateProgram();
   glAttachShader(shaderProgram2, vertexShader);
   glAttachShader(shaderProgram2, fragmentShader2);
   glLinkProgram(shaderProgram2);
 
-  // Delete shaders as they're linked into our program now and no longer
-  // necessary
   glDeleteShader(vertexShader);
   glDeleteShader(fragmentShader1);
   glDeleteShader(fragmentShader2);
 
-  // Offset locations for both shader programs
   GLuint offsetLocation1 = glGetUniformLocation(shaderProgram1, "offset");
   GLuint offsetLocation2 = glGetUniformLocation(shaderProgram2, "offset");
 
@@ -144,7 +134,6 @@ int main() {
   glfwSetKeyCallback(window, onSetKeyEvent);
   glfwSetWindowSizeCallback(window, onSetWindowSize);
 
-  // Render loop
   while (!glfwWindowShouldClose(window)) {
     glfwPollEvents();
     updateDeltaTime();
@@ -152,16 +141,13 @@ int main() {
     glEnable(GL_DEPTH_TEST);
     glViewport(0, 0, width, height);
 
-    // Clear the color buffer and depth buffer
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Vertex array object
     GLuint VAO;
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
 
-    // Vertex buffer object
     GLuint VBO;
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -171,28 +157,21 @@ int main() {
                           nullptr);
     glEnableVertexAttribArray(0);
 
-    // Draw the first triangle using the first shader program
     glUseProgram(shaderProgram1);
-    // Use a different offset for each triangle
     glUniform2f(offsetLocation1, 0.1f, 0.1f);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
-    // Draw the second triangle using the second shader program
     glUseProgram(shaderProgram2);
-    // Use a different offset for each triangle
     glUniform2f(offsetLocation2, -0.1f, -0.1f);
-    // We just change the shader, not the vertices
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
 
-    // Vertex buffer object for square
     GLuint VAO_square;
     glGenVertexArrays(1, &VAO_square);
     glBindVertexArray(VAO_square);
 
-    // Vertex buffer object
     GLuint VBO_square;
     glGenBuffers(1, &VBO_square);
     glBindBuffer(GL_ARRAY_BUFFER, VBO_square);
@@ -208,14 +187,12 @@ int main() {
     glDeleteVertexArrays(1, &VAO_square);
     glDeleteBuffers(1, &VBO_square);
 
-    // Swap buffers and poll IO events
     glfwSwapBuffers(window);
   }
 
   glDeleteProgram(shaderProgram1);
   glDeleteProgram(shaderProgram2);
 
-  // Terminate GLFW
   glfwTerminate();
   return EXIT_SUCCESS;
 }
