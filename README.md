@@ -47,3 +47,9 @@ OpenGL and learning that on it's own is fine, however there is a lot math going 
 ### What can I currently make?
 
 I am confident I could create a `Node` class that contains object data and takes in a texture or whatever which is just an OpenGL program which accepts uniforms and I could play with different matrices and objects in the scene that way... I could have some kind of API doing that! The current code that creates a window and renders data to it could be a separate thing for itself as a documentation of the process so far... I had so much fun doing all of that! I feel like I could just keep going, and damn I really need to learn the math.
+
+### Maybe I overwhelmed myself?
+
+I've read implementation of various methods and classes of `Babylon.js` to gain understanding in some common patterns that widely adopted engine uses. I've read so much and I feel like I have so much information with very limited experience so far. They use advanced methods that I am not familiar with, however I've gained quite a few ideas on what to do now. I could play with frustum, matrices, rotations, etc... Figure out math by pen, paper, tutorials, books, etc... then implement that math using OpenGL and programming!
+
+Let's let it sink in!
