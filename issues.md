@@ -20,3 +20,18 @@ Add to `.vscode/settings.json` to improve autocomplete:
   ]
 }
 ```
+
+Alternatively, add to `.vscode/c_cpp_properties.json`:
+
+```json
+{
+  "configurations": [
+    {
+      "includePath": [
+        "${workspaceFolder}\\include",
+        "${workspaceFolder}\\build\\vcpkg_installed\\x64-windows\\include"
+      ]
+    }
+  ]
+}
+```
