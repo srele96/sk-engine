@@ -15,14 +15,8 @@ std::vector<GLfloat> square{
     0.5f,  0.5f,  0.0f  // Top-right vertex of the square
 };
 
-const int initialWidth = 800;
-const int initialHeight = 600;
-int width = initialWidth;
-int height = initialHeight;
-
-void onSetWindowSize(GLFWwindow *window, int w, int h) {
-  width = w;
-  height = h;
+void onSetWindowSize(GLFWwindow *window, int width, int height) {
+  glViewport(0, 0, width, height);
 }
 
 GLuint createShader(const GLenum type, const GLchar *source) {
@@ -58,8 +52,10 @@ int main() {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  GLFWwindow *window{glfwCreateWindow(width, height, "GLFW Glad Test Window",
-                                      nullptr, nullptr)};
+  constexpr int initialWidth = 800;
+  constexpr int initialHeight = 600;
+  GLFWwindow *window{glfwCreateWindow(
+      initialWidth, initialHeight, "GLFW Glad Test Window", nullptr, nullptr)};
   if (!window) {
     std::cerr << "Failed to create GLFW window\n";
     glfwTerminate();
@@ -73,6 +69,11 @@ int main() {
     glfwTerminate();
     return EXIT_FAILURE;
   }
+
+  int width;
+  int height;
+  glfwGetFramebufferSize(window, &width, &height);
+  glViewport(0, 0, width, height);
 
   const GLubyte *glVersion{glGetString(GL_VERSION)};
   std::cout << "OpenGL Version: " << glVersion << "\n";
@@ -88,7 +89,6 @@ int main() {
     glfwPollEvents();
 
     glEnable(GL_DEPTH_TEST);
-    glViewport(0, 0, width, height);
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
