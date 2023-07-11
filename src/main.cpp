@@ -68,11 +68,14 @@ int main() {
     return EXIT_FAILURE;
   }
 
+  glfwMakeContextCurrent(window);
+
   int width;
   int height;
   glfwGetFramebufferSize(window, &width, &height);
-  glfwMakeContextCurrent(window);
   glViewport(0, 0, width, height);
+
+  glfwSetWindowSizeCallback(window, onSetWindowSize);
 
   std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << "\n";
 
@@ -80,8 +83,6 @@ int main() {
                                       shader::fragment::red.c_str())};
   GLuint shaderProgram2{createProgram(shader::vertex::translateByOffset.c_str(),
                                       shader::fragment::blue.c_str())};
-
-  glfwSetWindowSizeCallback(window, onSetWindowSize);
 
   while (!glfwWindowShouldClose(window)) {
     glfwPollEvents();
