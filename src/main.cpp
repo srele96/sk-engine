@@ -4,16 +4,11 @@
 #include "GLAD/glad.h"
 #include "GLFW/glfw3.h"
 
-const GLchar *vertexShaderSource{R"glsl(
-    #version 430 core
-    layout (location = 0) in vec3 aPos;
-    uniform vec2 offset;
-    void main() {
-        gl_Position = vec4(aPos.x + offset.x, aPos.y + offset.y, aPos.z, 1.0);
-    }
-)glsl"};
+namespace shader {
 
-const GLchar *fragmentShaderSource1{R"glsl(
+namespace vertex {
+
+const std::string translateByOffset{R"glsl(
     #version 430 core
     out vec4 FragColor;
     void main() {
@@ -21,14 +16,30 @@ const GLchar *fragmentShaderSource1{R"glsl(
     }
 )glsl"};
 
-const GLchar *fragmentShaderSource2{
+} // namespace vertex
+
+namespace fragment {
+
+const std::string red{
     R"glsl(
+    #version 430 core
+    out vec4 FragColor;
+    void main() {
+        FragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f); // Red color
+    }
+)glsl"};
+
+const std::string blue{R"glsl(
     #version 430 core
     out vec4 FragColor;
     void main() {
         FragColor = vec4(0.0f, 0.0f, 1.0f, 1.0f); // Blue color
     }
 )glsl"};
+
+} // namespace fragment
+
+} // namespace shader
 
 std::vector<GLfloat> triangle{-0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
                               0.0f,  0.0f,  0.5f, 0.0f};
@@ -104,10 +115,10 @@ int main() {
   const GLubyte *glVersion{glGetString(GL_VERSION)};
   std::cout << "OpenGL Version: " << glVersion << "\n";
 
-  GLuint shaderProgram1{
-      createProgram(vertexShaderSource, fragmentShaderSource1)};
-  GLuint shaderProgram2{
-      createProgram(vertexShaderSource, fragmentShaderSource2)};
+  GLuint shaderProgram1{createProgram(shader::vertex::translateByOffset.c_str(),
+                                      shader::fragment::red.c_str())};
+  GLuint shaderProgram2{createProgram(shader::vertex::translateByOffset.c_str(),
+                                      shader::fragment::blue.c_str())};
 
   glfwSetWindowSizeCallback(window, onSetWindowSize);
 
