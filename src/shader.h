@@ -4,7 +4,6 @@
 #include <string>
 
 namespace shader {
-
 namespace vertex {
 
 const std::string translateByOffset{R"glsl(
@@ -37,7 +36,6 @@ const std::string blue{R"glsl(
 )glsl"};
 
 } // namespace fragment
-
 } // namespace shader
 
 #endif // __SRC_SHADER_H__
