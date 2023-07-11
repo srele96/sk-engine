@@ -85,8 +85,8 @@ int main() {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  GLFWwindow *window =
-      glfwCreateWindow(width, height, "GLFW Glad Test Window", NULL, NULL);
+  GLFWwindow *window{glfwCreateWindow(width, height, "GLFW Glad Test Window",
+                                      nullptr, nullptr)};
   if (!window) {
     std::cerr << "Failed to create GLFW window\n";
     glfwTerminate();
@@ -97,6 +97,7 @@ int main() {
 
   if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
     std::cerr << "Failed to initialize GLAD\n";
+    glfwTerminate();
     return EXIT_FAILURE;
   }
 
