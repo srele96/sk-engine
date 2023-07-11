@@ -1,0 +1,481 @@
+# Vector rotation
+
+Math exchange website page that helped me:
+
+https://math.stackexchange.com/questions/2093314/rotation-matrix-of-rotation-around-a-point-other-than-the-origin
+
+rotating_vector = [2, 2]
+rotation_center = [4, 4]
+
+translate rotating vector:
+
+translated = [
+  rotating_vector[0] - rotation_center[0],
+  rotating_vector[1] - rotation_center[1]
+]
+
+which means we have a point:
+
+translated = [-2, 2]
+
+now rotate the translated vector around the origin [0, 0]:
+
+before translation of 90 degrees around origin [0, 0], our vector is [-2, -2]
+
+         |
+         |
+         |
+         |
+--------------------
+         |
+    x    |
+         |
+         |
+
+after rotation of 90 degrees around origin [0, 0], our vector is [2, -2]
+
+         |
+         |
+         |
+         |
+--------------------
+         |
+         |    x
+         |
+         |
+
+after adding back the subtracted values of the point around which it was rotated:
+
+         |        x
+         |
+         |
+         |
+--------------------
+         |
+         |          
+         |
+         |
+
+## JavaScript code
+
+```js
+console.clear();
+
+// https://stackoverflow.com/questions/1458633/how-to-deal-with-floating-point-number-precision-in-javascript
+// BUGSSSSS...
+// Value of: -1.999999999999998 + 2 = 1.9984014443252818e-15
+// Don't want to fix it for now.
+
+(() => {
+  var f = (x, y, a, b, theta) => {
+    // Create translation matrix.
+    var t = (x, y) => [
+      1, 0, x,
+      0, 1, y,
+      0, 0, 1
+    ];
+    // Negative translation to enable rotation around origin.
+    var t1 = t(-a, -b);
+    // Rotation matrix.
+    var r = [
+      Math.cos(theta), -Math.sin(theta), 0,
+      Math.sin(theta), Math.cos(theta), 0,
+      0, 0, 1
+    ];
+    // Positive translation matrix after rotation.
+    var t2 = t(a, b);
+    // Vector to be rotated.
+    var v = [x, y, 1];
+
+    // Vector and matrix multiplication function that returns vector.
+    var mult = (vec, mat) => [
+      vec[0] * mat[0] + vec[1] * mat[1] + vec[2] * mat[2], //
+      vec[0] * mat[3] + vec[1] * mat[4] + vec[2] * mat[5], //
+      vec[0] * mat[6] + vec[1] * mat[7] + vec[2] * mat[8] //
+    ];
+
+    // First multiply vector against negative translation matrix
+    // Then multiply vector against rotation matrix
+    // Then multiply vector against positive translation matrix
+    return mult(mult(mult(v, t1), r), t2);
+  };
+
+  // Degree to radian formula
+  var rad = (d) => (d * Math.PI) / 180;
+
+  // Verify the correctness
+  console.log(f(2, 2, 4, 4, rad(90)));
+  console.log(f(0, 0, 4, 4, rad(90)));
+  console.log(f(4, 4, 2, 2, rad(90)));
+})();
+
+(() => {
+  var f = (a, b, deg) => {
+    var rad = (d) => d * Math.PI / 180
+    var theta = rad(deg)
+    var t = (v) => [
+      1, 0, v[0],
+      0, 1, v[1],
+      0, 0, 1
+    ]
+    var mult = (v, m) => [
+      v[0] * m[0] + v[1] * m[1] + v[2] * m[2],
+      v[0] * m[3] + v[1] * m[4] + v[2] * m[5],
+      v[0] * m[6] + v[1] * m[7] + v[2] * m[8]
+    ]
+    var neg = t(b.map(i => -i))
+    var rot = [
+      Math.cos(theta), -Math.sin(theta), 0,
+      Math.sin(theta), Math.cos(theta), 0,
+      0, 0, 1
+    ];
+    var pos = t(b);
+    var v = [a[0], a[1], 1];
+    return mult(mult(mult(v, neg), rot), pos);
+  }
+  console.log(f([4, 4], [2,2], 90))
+  console.log(f([2, 2], [2,2], 90))
+  console.log(f([2, 2], [4,4], 90))
+})();
+```
+
+## Conversation with ChatGPT
+
+Me:
+
+what is formula to rotate point around origin? 2d point
+
+---------------------------------------
+---------------------------------------
+---------------------------------------
+
+ChatGPT:
+
+To rotate a 2D point around the origin (0, 0), you can use the following formula:
+
+x' = x * cos(theta) - y * sin(theta)
+y' = x * sin(theta) + y * cos(theta)
+
+Here, (x, y) represents the original coordinates of the point, (x', y') represents the coordinates of the rotated point, and theta represents the angle of rotation in radians. The trigonometric functions cos(theta) and sin(theta) calculate the cosine and sine of the angle, respectively.
+
+By substituting the values of x, y, and theta into the formulas, you can compute the new coordinates (x', y') of the rotated point.
+
+---------------------------------------
+---------------------------------------
+---------------------------------------
+
+Me:
+
+what if i want to rotate it around arbitary point?
+
+---------------------------------------
+---------------------------------------
+---------------------------------------
+
+ChatGPT:
+
+To rotate a 2D point around an arbitrary point (cx, cy), you can follow these steps:
+
+    Translate the point to be rotated by subtracting the center coordinates:
+    translatedX = x - cx
+    translatedY = y - cy
+
+    Perform the rotation using the formulas for rotation around the origin:
+    rotatedX = translatedX * cos(theta) - translatedY * sin(theta)
+    rotatedY = translatedX * sin(theta) + translatedY * cos(theta)
+
+    Translate the rotated point back to its original position by adding the center coordinates:
+    finalX = rotatedX + cx
+    finalY = rotatedY + cy
+
+Here, (x, y) represents the original coordinates of the point, (finalX, finalY) represents the coordinates of the rotated point, (cx, cy) represents the center point around which the rotation is performed, and theta represents the angle of rotation in radians.
+
+By substituting the values of x, y, cx, cy, and theta into the formulas, you can compute the new coordinates (finalX, finalY) of the rotated point around the arbitrary point.
+
+---------------------------------------
+---------------------------------------
+---------------------------------------
+
+Me:
+
+point 2,2 rotated around 4,4, by 90 degrees, what is the resulting point?
+
+---------------------------------------
+---------------------------------------
+---------------------------------------
+
+ChatGPT:
+
+To rotate the point (2, 2) around the center (4, 4) by 90 degrees, we can use the formulas mentioned earlier.
+
+    Translate the point:
+    translatedX = 2 - 4 = -2
+    translatedY = 2 - 4 = -2
+
+    Perform the rotation:
+    rotatedX = -2 * cos(90°) - (-2) * sin(90°) = 2
+    rotatedY = -2 * sin(90°) + (-2) * cos(90°) = -2
+
+    Translate the rotated point back:
+    finalX = 2 + 4 = 6
+    finalY = -2 + 4 = 2
+
+The resulting point after rotating (2, 2) around (4, 4) by 90 degrees is (6, 2).
+
+---------------------------------------
+---------------------------------------
+---------------------------------------
+
+Me:
+
+how would i write 2d matrix to rotate vector v=[x,y] around w=[x,y]
+
+---------------------------------------
+---------------------------------------
+---------------------------------------
+
+ChatGPT
+
+To rotate a 2D vector v = [x, y] around an arbitrary point w = [x, y], you can follow these steps:
+
+    Translate the vector v by the negative of the point w:
+    translatedV.x = v.x - w.x
+    translatedV.y = v.y - w.y
+
+    Perform the rotation using the following formulas:
+    rotatedV.x = translatedV.x * cos(theta) - translatedV.y * sin(theta)
+    rotatedV.y = translatedV.x * sin(theta) + translatedV.y * cos(theta)
+
+    Here, theta represents the angle of rotation in radians.
+
+    Translate the rotated vector back by adding the point w:
+    finalV.x = rotatedV.x + w.x
+    finalV.y = rotatedV.y + w.y
+
+The resulting vector after rotating v around w can be obtained as finalV = [finalV.x, finalV.y].
+
+Make sure to convert the angle theta to radians before performing the trigonometric functions if you are working with degrees.
+
+---------------------------------------
+---------------------------------------
+---------------------------------------
+
+Me:
+
+how can i do it using matrices
+
+---------------------------------------
+---------------------------------------
+---------------------------------------
+
+ChatGPT:
+
+To rotate a 2D vector v = [x, y] around an arbitrary point w = [x, y] using matrices, you can follow these steps:
+
+    Define the translation matrix T that translates the origin to the point w:
+    T = | 1 0 w.x |
+    | 0 1 w.y |
+    | 0 0 1 |
+
+    Define the rotation matrix R that represents the desired rotation:
+    R = | cos(theta) -sin(theta) 0 |
+    | sin(theta) cos(theta) 0 |
+    | 0 0 1 |
+
+    Here, theta represents the angle of rotation in radians.
+
+    Define the inverse translation matrix T_inv that translates the point w back to the origin:
+    T_inv = | 1 0 -w.x |
+    | 0 1 -w.y |
+    | 0 0 1 |
+
+    Compute the resulting vector v_rotated by multiplying the matrices:
+    v_homogeneous = | v.x |
+    | v.y |
+    | 1 |
+
+    v_rotated_homogeneous = T_inv * R * T * v_homogeneous
+
+    The resulting vector v_rotated_homogeneous is in homogeneous coordinates.
+
+    Convert the resulting vector v_rotated_homogeneous back to Cartesian coordinates:
+    v_rotated = | v_rotated_homogeneous.x / v_rotated_homogeneous.z |
+    | v_rotated_homogeneous.y / v_rotated_homogeneous.z |
+
+The resulting vector v_rotated = [v_rotated.x, v_rotated.y] represents the rotated vector v around the point w.
+
+Make sure to convert the angle theta to radians before computing the rotation matrix R if you are working with degrees.
+
+---------------------------------------
+---------------------------------------
+---------------------------------------
+
+Me:
+
+would it not be enough to write translation matrix that performs subtraction v.x - w.x and v.y - w.y and afterwards adds it back or are you already doing that using matrices? sorry, im just missing some info
+
+---------------------------------------
+---------------------------------------
+---------------------------------------
+
+ChatGPT
+
+No need to apologize! Yes, you can certainly achieve the same result by performing a translation, rotation, and then another translation using separate transformations. The matrices presented earlier handle the combined translation and rotation in a single step.
+
+If you prefer to use separate translation matrices, you can follow these steps:
+
+    Define the first translation matrix T1 that translates the point w to the origin:
+    T1 = | 1 0 -w.x |
+    | 0 1 -w.y |
+    | 0 0 1 |
+
+    Define the rotation matrix R as mentioned before:
+    R = | cos(theta) -sin(theta) 0 |
+    | sin(theta) cos(theta) 0 |
+    | 0 0 1 |
+
+    Define the second translation matrix T2 that translates the origin back to the point w:
+    T2 = | 1 0 w.x |
+    | 0 1 w.y |
+    | 0 0 1 |
+
+    Compute the resulting vector v_rotated by applying the transformations:
+    v_translated = T1 * v
+    v_rotated = R * v_translated
+    v_final = T2 * v_rotated
+
+Both approaches achieve the same result, but using matrices allows you to combine the transformations into a single matrix multiplication, which can be more efficient in some cases.
+
+---------------------------------------
+---------------------------------------
+---------------------------------------
+
+Me:
+
+can you show the same but with only 2 components instead of 2? 2d vectors
+
+---------------------------------------
+---------------------------------------
+---------------------------------------
+
+ChatGPT:
+
+Certainly! For 2D vectors, you can simplify the transformation matrices to 2x2 matrices. Here's the modified version using 2D vectors:
+
+    Define the first translation matrix T1 that translates the point w to the origin:
+    T1 = | 1 -w.x |
+    | 0 -w.y |
+
+    Define the rotation matrix R as mentioned before:
+    R = | cos(theta) -sin(theta) |
+    | sin(theta) cos(theta) |
+
+    Define the second translation matrix T2 that translates the origin back to the point w:
+    T2 = | 1 w.x |
+    | 0 w.y |
+
+    Compute the resulting vector v_rotated by applying the transformations:
+    v_translated = T1 * v
+    v_rotated = R * v_translated
+    v_final = T2 * v_rotated
+
+Note that in this case, the translation matrices are 2x2 matrices because we are working with 2D vectors.
+
+---------------------------------------
+---------------------------------------
+---------------------------------------
+
+Me:
+
+hey, im missing some info again, sorry, what is | v.x |
+
+---------------------------------------
+---------------------------------------
+---------------------------------------
+
+ChatGPT:
+
+Apologies for the confusion. The notation |v.x| represents the absolute value of the component v.x. It means taking the magnitude of the value, discarding the sign. In the context of transformation matrices, it indicates that the value should remain unchanged regardless of its sign.
+
+For example, if v.x = -3, then |v.x| = 3. If v.x = 5, then |v.x| = 5. Essentially, it ensures that the component v.x is unaffected by the transformation.
+
+---------------------------------------
+---------------------------------------
+---------------------------------------
+
+Me:
+
+so i can apply this for any rotation around another point?
+
+---------------------------------------
+---------------------------------------
+---------------------------------------
+
+ChatGPT:
+
+Yes, the concept of rotating around an arbitrary point can be applied using similar principles. The translation part of the matrix is responsible for moving the rotation center to the origin, applying the rotation, and then translating back to the original position.
+
+By subtracting the coordinates of the rotation center from the vector before rotation and adding them back afterward, you achieve the effect of rotating around an arbitrary point. This technique can be applied to 2D and 3D transformations.
+
+Remember that the rotation matrix used in the calculations depends on the desired rotation angle and the coordinate system conventions you are following (e.g., clockwise or counterclockwise rotations).
+
+---------------------------------------
+---------------------------------------
+---------------------------------------
+
+Me:
+
+why do we subtract point that rotates from center of rotation
+
+---------------------------------------
+---------------------------------------
+---------------------------------------
+
+ChatGPT:
+
+When rotating a point around an arbitrary center of rotation, you subtract the coordinates of the rotation center from the point being rotated in order to align the center of rotation with the origin (0, 0). This is done to simplify the rotation calculations.
+
+By translating the point to the origin, the rotation becomes a simpler transformation using rotation matrices or trigonometric functions. After the rotation is applied, you can then translate the point back to its original position by adding the coordinates of the rotation center.
+
+This process allows you to treat the rotation as if it is occurring around the origin, simplifying the mathematics involved. It's a way to transform the problem into a coordinate system where the rotation is easier to express and calculate.
+
+---------------------------------------
+---------------------------------------
+---------------------------------------
+
+Me:
+
+i see, all rotations are easier around the origin, however I'm a bit confused so if you could provide more information, when I have point
+
+2,2 and I rotate it around point 4,4
+after translation I will have point -2, -2
+
+that's not 0,0
+
+hmmm... explain why does subtracting point that rotates by rotation origin give us a point that rotates around origin? now I see that when I subtract and get -2, -2
+
+and rotate it by 90 degrees, I will get new point: 2, -2, that means I rotated point: -2, -2 around origin by 90 degrees
+
+and when I translate it back after rotation, I get the result
+
+why do I subtract rotating from center of rotation?
+
+---------------------------------------
+---------------------------------------
+---------------------------------------
+
+ChatGPT:
+
+Apologies for the confusion in my previous response. Let me clarify the process of rotating a point around an arbitrary center of rotation.
+
+When you want to rotate a point (2, 2) around a center of rotation (4, 4) by 90 degrees, the steps involved are as follows:
+
+    Translate the center of rotation to the origin: To align the center of rotation (4, 4) with the origin (0, 0), you subtract the coordinates of the center of rotation from the point being rotated. So, (2, 2) becomes (-2, -2) relative to the new origin.
+
+    Perform the rotation around the origin: Since the point is now relative to the origin, you can apply a rotation transformation around the origin. In this case, a 90-degree rotation would transform (-2, -2) to (-2, 2).
+
+    Translate back to the original position: To bring the rotated point back to its original position relative to the center of rotation, you add the coordinates of the center of rotation back to the rotated point. So, (-2, 2) becomes (2, 6) in the original coordinate system.
+
+By subtracting the center of rotation from the point being rotated, you effectively shift the center of rotation to the origin, making the rotation simpler to perform. After the rotation, you can translate the point back to its original position by adding the coordinates of the center of rotation.
+
+The subtraction of the center of rotation allows you to work with the relative coordinates of the point, simplifying the rotation calculation. It's a way of aligning the point to a new coordinate system centered at the origin, where the rotation is easier to express and calculate.
