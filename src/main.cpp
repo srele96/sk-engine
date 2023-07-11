@@ -6,15 +6,6 @@
 
 #include "shader.h"
 
-std::vector<GLfloat> triangle{-0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
-                              0.0f,  0.0f,  0.5f, 0.0f};
-std::vector<GLfloat> square{
-    -0.5f, -0.5f, 0.0f, // Bottom-left vertex of the square
-    0.5f,  -0.5f, 0.0f, // Bottom-right vertex of the square
-    -0.5f, 0.5f,  0.0f, // Top-left vertex of the square
-    0.5f,  0.5f,  0.0f  // Top-right vertex of the square
-};
-
 void onSetWindowSize(GLFWwindow *window, int width, int height) {
   glViewport(0, 0, width, height);
 }
@@ -83,6 +74,15 @@ int main() {
                                       shader::fragment::red.c_str())};
   GLuint shaderProgram2{createProgram(shader::vertex::translateByOffset.c_str(),
                                       shader::fragment::blue.c_str())};
+
+  const std::vector<GLfloat> triangle{-0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
+                                      0.0f,  0.0f,  0.5f, 0.0f};
+  const std::vector<GLfloat> square{
+      -0.5f, -0.5f, 0.0f, // Bottom-left vertex of the square
+      0.5f,  -0.5f, 0.0f, // Bottom-right vertex of the square
+      -0.5f, 0.5f,  0.0f, // Top-left vertex of the square
+      0.5f,  0.5f,  0.0f  // Top-right vertex of the square
+  };
 
   while (!glfwWindowShouldClose(window)) {
     glfwPollEvents();
