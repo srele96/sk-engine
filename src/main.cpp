@@ -62,8 +62,6 @@ int main() {
     return EXIT_FAILURE;
   }
 
-  glfwMakeContextCurrent(window);
-
   if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
     std::cerr << "Failed to initialize GLAD\n";
     glfwTerminate();
@@ -73,10 +71,10 @@ int main() {
   int width;
   int height;
   glfwGetFramebufferSize(window, &width, &height);
+  glfwMakeContextCurrent(window);
   glViewport(0, 0, width, height);
 
-  const GLubyte *glVersion{glGetString(GL_VERSION)};
-  std::cout << "OpenGL Version: " << glVersion << "\n";
+  std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << "\n";
 
   GLuint shaderProgram1{createProgram(shader::vertex::translateByOffset.c_str(),
                                       shader::fragment::red.c_str())};
