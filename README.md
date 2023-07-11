@@ -2,6 +2,10 @@
 
 Engine for skill demonstration purposes assembled without tutorials.
 
+## How to build
+
+For build instructions see [`vcpkg.json`](./vcpkg.json) because it's package manager so I figured building documentation should be there.
+
 ## Creation process
 
 Babylon documentation - [First Scene and Model](https://doc.babylonjs.com/features/introductionToFeatures/chap1/first_scene)
