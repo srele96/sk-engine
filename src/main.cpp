@@ -50,9 +50,6 @@ std::vector<GLfloat> square{
     0.5f,  0.5f,  0.0f  // Top-right vertex of the square
 };
 
-GLfloat deltaTime = 0.0f;
-GLfloat lastFrame = 0.0f;
-
 const int initialWidth = 800;
 const int initialHeight = 600;
 int width = initialWidth;
