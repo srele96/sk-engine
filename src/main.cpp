@@ -4,42 +4,7 @@
 #include "GLAD/glad.h"
 #include "GLFW/glfw3.h"
 
-namespace shader {
-
-namespace vertex {
-
-const std::string translateByOffset{R"glsl(
-    #version 430 core
-    out vec4 FragColor;
-    void main() {
-        FragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f); // Red color
-    }
-)glsl"};
-
-} // namespace vertex
-
-namespace fragment {
-
-const std::string red{
-    R"glsl(
-    #version 430 core
-    out vec4 FragColor;
-    void main() {
-        FragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f); // Red color
-    }
-)glsl"};
-
-const std::string blue{R"glsl(
-    #version 430 core
-    out vec4 FragColor;
-    void main() {
-        FragColor = vec4(0.0f, 0.0f, 1.0f, 1.0f); // Blue color
-    }
-)glsl"};
-
-} // namespace fragment
-
-} // namespace shader
+#include "shader.h"
 
 std::vector<GLfloat> triangle{-0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
                               0.0f,  0.0f,  0.5f, 0.0f};
