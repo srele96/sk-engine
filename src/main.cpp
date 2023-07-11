@@ -47,24 +47,32 @@ const int initialHeight = 600;
 int width = initialWidth;
 int height = initialHeight;
 
-void onSetCursorPosEvent(GLFWwindow *window, double xpos, double ypos) {
-  // TODO:
-}
-
-void onSetKeyEvent(GLFWwindow *window, int key, int scancode, int action,
-                   int mods) {
-  // TODO:
-}
-
 void onSetWindowSize(GLFWwindow *window, int w, int h) {
   width = w;
   height = h;
 }
 
-void updateDeltaTime() {
-  GLfloat currentFrame = glfwGetTime();
-  deltaTime = currentFrame - lastFrame;
-  lastFrame = currentFrame;
+GLuint createShader(const GLenum type, const GLchar *source) {
+  GLuint shader{glCreateShader(type)};
+  glShaderSource(shader, 1, &source, nullptr);
+  glCompileShader(shader);
+
+  return shader;
+}
+
+GLuint createProgram(const GLchar *vsSource, const GLchar *fsSource) {
+  GLuint vertexShader{createShader(GL_VERTEX_SHADER, vsSource)};
+  GLuint fragmentShader{createShader(GL_FRAGMENT_SHADER, fsSource)};
+
+  GLuint shaderProgram{glCreateProgram()};
+  glAttachShader(shaderProgram, vertexShader);
+  glAttachShader(shaderProgram, fragmentShader);
+  glLinkProgram(shaderProgram);
+
+  glDeleteShader(vertexShader);
+  glDeleteShader(fragmentShader);
+
+  return shaderProgram;
 }
 
 int main() {
@@ -95,43 +103,15 @@ int main() {
   const GLubyte *glVersion{glGetString(GL_VERSION)};
   std::cout << "OpenGL Version: " << glVersion << "\n";
 
-  GLuint vertexShader;
-  vertexShader = glCreateShader(GL_VERTEX_SHADER);
-  glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
-  glCompileShader(vertexShader);
+  GLuint shaderProgram1{
+      createProgram(vertexShaderSource, fragmentShaderSource1)};
+  GLuint shaderProgram2{
+      createProgram(vertexShaderSource, fragmentShaderSource2)};
 
-  GLuint fragmentShader1 = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(fragmentShader1, 1, &fragmentShaderSource1, nullptr);
-  glCompileShader(fragmentShader1);
-
-  GLuint fragmentShader2 = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(fragmentShader2, 1, &fragmentShaderSource2, nullptr);
-  glCompileShader(fragmentShader2);
-
-  GLuint shaderProgram1 = glCreateProgram();
-  glAttachShader(shaderProgram1, vertexShader);
-  glAttachShader(shaderProgram1, fragmentShader1);
-  glLinkProgram(shaderProgram1);
-
-  GLuint shaderProgram2 = glCreateProgram();
-  glAttachShader(shaderProgram2, vertexShader);
-  glAttachShader(shaderProgram2, fragmentShader2);
-  glLinkProgram(shaderProgram2);
-
-  glDeleteShader(vertexShader);
-  glDeleteShader(fragmentShader1);
-  glDeleteShader(fragmentShader2);
-
-  GLuint offsetLocation1 = glGetUniformLocation(shaderProgram1, "offset");
-  GLuint offsetLocation2 = glGetUniformLocation(shaderProgram2, "offset");
-
-  glfwSetCursorPosCallback(window, onSetCursorPosEvent);
-  glfwSetKeyCallback(window, onSetKeyEvent);
   glfwSetWindowSizeCallback(window, onSetWindowSize);
 
   while (!glfwWindowShouldClose(window)) {
     glfwPollEvents();
-    updateDeltaTime();
 
     glEnable(GL_DEPTH_TEST);
     glViewport(0, 0, width, height);
@@ -153,10 +133,14 @@ int main() {
     glEnableVertexAttribArray(0);
 
     glUseProgram(shaderProgram1);
+    const GLuint offsetLocation1 =
+        glGetUniformLocation(shaderProgram1, "offset");
     glUniform2f(offsetLocation1, 0.1f, 0.1f);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
     glUseProgram(shaderProgram2);
+    const GLuint offsetLocation2 =
+        glGetUniformLocation(shaderProgram2, "offset");
     glUniform2f(offsetLocation2, -0.1f, -0.1f);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
@@ -187,7 +171,7 @@ int main() {
 
   glDeleteProgram(shaderProgram1);
   glDeleteProgram(shaderProgram2);
-
   glfwTerminate();
+
   return EXIT_SUCCESS;
 }
