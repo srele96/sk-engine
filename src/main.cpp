@@ -34,6 +34,26 @@ GLuint createProgram(const GLchar *vsSource, const GLchar *fsSource) {
   return shaderProgram;
 }
 
+template <typename T>
+void drawArrays(const GLenum mode, const GLint first, const GLsizei count,
+                const std::vector<T> &vertices) {
+  GLuint VAO;
+  glGenVertexArrays(1, &VAO);
+  glBindVertexArray(VAO);
+
+  GLuint VBO;
+  glGenBuffers(1, &VBO);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(T), vertices.data(),
+               GL_STATIC_DRAW);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(T), nullptr);
+  glEnableVertexAttribArray(0);
+
+  glDrawArrays(mode, first, count);
+  glDeleteVertexArrays(1, &VAO);
+  glDeleteBuffers(1, &VBO);
+}
+
 namespace comfortExtender {
 
 using EachProgramUniformFunc = std::function<void(
@@ -139,52 +159,22 @@ int main() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    GLuint VAO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-
-    GLuint VBO;
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, triangle.size() * sizeof(GLfloat),
-                 triangle.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat),
-                          nullptr);
-    glEnableVertexAttribArray(0);
-
     glUseProgram(shaderProgram1);
     const GLuint offsetLocation1 =
         glGetUniformLocation(shaderProgram1, "offset");
+
     glUniform2f(offsetLocation1, 0.1f, 0.1f);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    drawArrays(GL_TRIANGLES, 0, 3, triangle);
 
     glUseProgram(shaderProgram2);
     const GLuint offsetLocation2 =
         glGetUniformLocation(shaderProgram2, "offset");
+
     glUniform2f(offsetLocation2, -0.1f, -0.1f);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-
-    GLuint VAO_square;
-    glGenVertexArrays(1, &VAO_square);
-    glBindVertexArray(VAO_square);
-
-    GLuint VBO_square;
-    glGenBuffers(1, &VBO_square);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_square);
-    glBufferData(GL_ARRAY_BUFFER, square.size() * sizeof(GLfloat),
-                 square.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat),
-                          nullptr);
-    glEnableVertexAttribArray(0);
+    drawArrays(GL_TRIANGLES, 0, 3, triangle);
 
     glUniform2f(offsetLocation2, -0.4f, -0.4f);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-    glDeleteVertexArrays(1, &VAO_square);
-    glDeleteBuffers(1, &VBO_square);
+    drawArrays(GL_TRIANGLE_STRIP, 0, 4, square);
 
     glfwSwapBuffers(window);
   }
