@@ -1,0 +1,171 @@
+# Shader program uniforms
+
+Retrieval of information from shaders is possible through OpenGL API.
+
+Documentation on how to retrieve shader uniform info:
+
+https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetActiveUniform.xhtml
+
+A cool way to write shader within code:
+
+https://stackoverflow.com/questions/1135841/c-multiline-string-literal
+
+A cool way to use C++ buffers compatible with C:
+
+```cpp
+void eachProgramUniform(const GLuint program, EachProgramUniformFunc &func) {
+  GLint params;
+  glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &params);
+
+  // According to the documentation, this is the recommended way to retrieve the
+  // max length of the uniform variable of a shader because it guarantees that
+  // we will have enough space to store the name of the uniform variable.
+  // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetActiveUniform.xhtml
+  GLint maxLength;
+  glGetProgramiv(program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
+
+  for (GLint i{0}; i != params; ++i) {
+    GLint size;
+    std::vector<GLchar> nameBuffer(maxLength);
+    GLenum type;
+    glGetActiveUniform(program, i, maxLength, nullptr, &size, &type,
+                       nameBuffer.data());
+    std::string name{nameBuffer.data()};
+
+    func(size, type, name);
+  }
+};
+```
+
+## Figuring out how to do it with ChatGPT assistance
+
+Me:
+
+can fragment shader also require uniforms?
+
+---------------------------------------------------------------------
+
+ChatGPT:
+
+Yes, fragment shaders can also require uniforms. Uniforms in fragment shaders are used to pass data from the CPU (host) to the fragment shader for per-fragment processing. This can include data such as colors, textures, lighting parameters, or any other values needed for fragment shading.
+
+To use uniforms in a fragment shader, you would declare them in the shader code using the uniform keyword, just like in vertex shaders. For example:
+
+In your application code, you would set the values of these uniforms using OpenGL functions such as glUniform3f, glUniform1f, glUniform1i, etc., before rendering with the shader program.
+
+---------------------------------------------------------------------
+
+Me:
+
+gl program requires uniforms to be passed to it, right? whatis the different between:
+
+glUniform1fv and glUniform1f
+
+---------------------------------------------------------------------
+
+ChatGPT:
+
+The glUniform1fv and glUniform1f functions in OpenGL are used to set the value of a uniform variable in a shader program.
+
+    glUniform1fv is used to set the value of a uniform variable that represents an array or a buffer of floating-point values. It takes the location of the uniform variable, the number of elements in the array, and a pointer to the first element of the array. For example, glUniform1fv(location, count, data).
+
+    glUniform1f is used to set the value of a uniform variable that represents a single floating-point value. It takes the location of the uniform variable and the value to be set. For example, glUniform1f(location, value).
+
+The key difference between the two functions is that glUniform1fv is used for setting multiple floating-point values at once, while glUniform1f is used for setting a single floating-point value.
+
+If you have a uniform variable that represents a single float value, you would use glUniform1f to set its value. If you have a uniform variable that represents an array or buffer of float values, you would use glUniform1fv to set its value by providing the array data.
+
+It's worth noting that the "v" suffix in glUniform1fv stands for "vector," indicating that it can handle arrays or vectors of values.
+
+---------------------------------------------------------------------
+
+Me:
+
+what are common algorithms for using shader program and then passing uniforms to it? shader program may have ANY amount and any type of uniforms declared, so what are common algorithms for handling that? does one method/function  handle using it and passing the uniforms or do we separate the two? also, what are algorithms for determining the type and the name of the uniform that we need to pass to the program? does the user of a shader program need to know which uniforms it requires, like programming function? do the same principles apply to the usage of shader programs like programming functions?
+
+---------------------------------------------------------------------
+
+ChatGPT:
+
+When working with shader programs and passing uniforms to them, there are several common approaches and algorithms that can be used. Here are some common strategies:
+
+    Retrieve uniform locations: Before you can set the values of uniforms, you need to retrieve their locations using glGetUniformLocation. Typically, this is done during shader initialization, where you store the uniform locations for later use. You can either store them as individual variables or in a data structure, depending on your needs.
+
+    Set uniform values: Once you have the uniform locations, you can use the appropriate glUniform functions to set their values. The specific function you use depends on the type of the uniform. For example, glUniform1f for float values, glUniform3fv for float vectors, glUniformMatrix4fv for matrices, and so on. You pass the uniform location and the value(s) you want to set.
+
+    Managing uniform data: If you have a large number of uniforms or a dynamic set of uniforms, you can create a data structure (e.g., a class or a struct) to manage the uniform data. This can include the uniform location, type, name, and value(s). You can then iterate over this data structure to set the uniform values programmatically.
+
+    Reflection/introspection: OpenGL provides a mechanism called "uniform introspection" through the use of the OpenGL Shading Language (GLSL) reflection APIs. These APIs allow you to query information about the uniforms declared in a shader program, including their types and names. This can be useful if you want to automate the process of retrieving uniform locations and setting their values based on their names.
+
+The approach you choose depends on your specific needs and the complexity of your shader programs. In some cases, you may prefer a manual approach where you explicitly manage the uniform data. In other cases, using reflection/introspection techniques can provide more flexibility and automation.
+
+It's important to note that the user of a shader program needs to have knowledge of which uniforms are required and how to set their values. Similar to programming functions, the shader program expects certain uniforms to be provided with correct values for proper rendering. The user needs to ensure that the necessary uniforms are set correctly and in the appropriate sequence to achieve the desired rendering results.
+
+---------------------------------------------------------------------
+
+Me:
+
+can i retrieve the type of the uniform the shader program has?
+
+---------------------------------------------------------------------
+
+ChatGPT:
+
+Yes, you can retrieve the type of uniforms in a shader program using OpenGL's reflection/introspection APIs. The specific API you can use is glGetActiveUniform. This function allows you to query information about active uniforms (i.e., those that are used in the shader program) based on their index.
+
+---------------------------------------------------------------------
+
+Me:
+
+since c functions often take pointer to an array buffer to read data, what is most common algorithm for reading data into buffer because we don't know how much character will be read?
+
+---------------------------------------------------------------------
+
+ChatGPT:
+
+When reading data into a buffer where the size is not known in advance, you typically use a loop to read the data incrementally until you reach the end of the input. Here's a common algorithm for reading data into a buffer:
+
+    Create a buffer with a reasonable initial size (e.g., allocate a dynamic array or use a resizable container like std::vector).
+    Set up a loop to read data in chunks or lines from the input until you reach the end of the input.
+    Read a chunk or line of data from the input and store it in the buffer.
+    Check if the buffer is full or if you have reached the end of the input. If the buffer is full, resize the buffer to accommodate more data (e.g., allocate a larger dynamic array or resize the std::vector).
+    Repeat steps 3 and 4 until you have read all the data from the input.
+    Process or manipulate the data in the buffer as needed.
+
+Here's an example in C that reads data from stdin into a dynamically resizing buffer until the end of input is reached:
+
+---------------------------------------------------------------------
+
+Me:
+
+what is considered an active uniform within a shader program? can uniform be inactive?
+
+---------------------------------------------------------------------
+
+ChatGPT:
+
+An active uniform within a shader program refers to a uniform variable that is actively being used by the shader program during rendering. The status of a uniform variable can be either active or inactive.
+
+When a uniform variable is declared in a shader, it is considered active if it is used in the shader code and contributes to the final rendering result. Inactive uniforms are those that are declared but not used in the shader code.
+
+During the compilation and linking of a shader program, the OpenGL implementation performs a process called "static use checking" to determine which uniform variables are actively used. Only the active uniforms are stored and accessible within the program object. Inactive uniforms are optimized out and may not be accessible through the program object.
+
+Therefore, when you query the active uniforms of a shader program using functions like glGetActiveUniform, you will only retrieve information about the active uniforms. Inactive uniforms will not be included in the result.
+
+---------------------------------------------------------------------
+
+Me:
+
+can i retrieve inactive uniforms as well?
+
+---------------------------------------------------------------------
+
+ChatGPT:
+
+No, it is not possible to retrieve information about inactive uniforms directly through OpenGL functions. The OpenGL API does not provide a mechanism to query inactive uniforms.
+
+The purpose of querying active uniforms is to obtain information about the uniforms that are actively used by the shader program. This allows you to determine the names, types, and other properties of the uniforms that are relevant for setting their values.
+
+If you need to access information about all the uniforms declared in a shader program, including the inactive ones, you would typically need to implement your own parsing or reflection mechanism. This involves parsing the shader source code, extracting the uniform declarations, and storing the information in your own data structures.
+
+Some external libraries or tools, such as GLSL reflection libraries or shader editors, may provide functionality to extract information about both active and inactive uniforms from shader source code. However, this is not part of the core OpenGL API.
