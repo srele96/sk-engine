@@ -7,9 +7,15 @@
 
 #include "shader.h"
 
+namespace glfw {
+
 void onSetWindowSize(GLFWwindow *window, int width, int height) {
   glViewport(0, 0, width, height);
 }
+
+} // namespace glfw
+
+namespace gl {
 
 GLuint createShader(const GLenum type, const GLchar *source) {
   GLuint shader{glCreateShader(type)};
@@ -33,6 +39,8 @@ GLuint createProgram(const GLchar *vsSource, const GLchar *fsSource) {
 
   return shaderProgram;
 }
+
+} // namespace gl
 
 template <typename T>
 void drawArrays(const GLenum mode, const GLint first, const GLsizei count,
@@ -119,14 +127,16 @@ int main() {
   glfwGetFramebufferSize(window, &width, &height);
   glViewport(0, 0, width, height);
 
-  glfwSetWindowSizeCallback(window, onSetWindowSize);
+  glfwSetWindowSizeCallback(window, glfw::onSetWindowSize);
 
   std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << "\n";
 
-  GLuint shaderProgram1{createProgram(shader::vertex::translateByOffset.c_str(),
-                                      shader::fragment::red.c_str())};
-  GLuint shaderProgram2{createProgram(shader::vertex::translateByOffset.c_str(),
-                                      shader::fragment::blue.c_str())};
+  GLuint shaderProgram1{
+      gl::createProgram(shader::vertex::translateByOffset.c_str(),
+                        shader::fragment::red.c_str())};
+  GLuint shaderProgram2{
+      gl::createProgram(shader::vertex::translateByOffset.c_str(),
+                        shader::fragment::blue.c_str())};
 
   comfortExtender::EachProgramUniformFunc printUniformDetails{
       [](const GLint size, const GLenum type, const std::string &name) {
@@ -136,7 +146,7 @@ int main() {
       }};
   comfortExtender::eachProgramUniform(shaderProgram1, printUniformDetails);
 
-  const GLuint programWithManyUniforms{createProgram(
+  const GLuint programWithManyUniforms{gl::createProgram(
       shader::vertex::useManyUniforms.c_str(), shader::fragment::red.c_str())};
   comfortExtender::eachProgramUniform(programWithManyUniforms,
                                       printUniformDetails);
