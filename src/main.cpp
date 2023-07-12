@@ -53,13 +53,13 @@ int main() {
     return EXIT_FAILURE;
   }
 
+  glfwMakeContextCurrent(window);
+
   if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
     std::cerr << "Failed to initialize GLAD\n";
     glfwTerminate();
     return EXIT_FAILURE;
   }
-
-  glfwMakeContextCurrent(window);
 
   int width;
   int height;
