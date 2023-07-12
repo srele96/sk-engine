@@ -1,0 +1,40 @@
+# Day 4
+
+Today it is day 4 since I started working on renderer and I feel rapid progress.
+
+I played with rotation around origin and around other vectors and look at
+matrix to make vector look at other vector. Those were important because I want
+to make two cubes where one rotates around the other.
+
+I am becoming more proficient with Khronos documentation which feels awesomely
+documented and very easy to use.
+
+https://registry.khronos.org/OpenGL-Refpages/gl4/html/
+https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBufferData.xhtml
+https://registry.khronos.org/OpenGL-Refpages/gl4/html/glDrawArrays.xhtml
+https://registry.khronos.org/OpenGL-Refpages/gl4/html/glUniform.xhtml
+https://registry.khronos.org/OpenGL-Refpages/gl4/html/glUniform.xhtml
+https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBindVertexArray.xhtml
+https://registry.khronos.org/OpenGL-Refpages/gl4/html/glEnableVertexAttribArray.xhtml
+https://registry.khronos.org/OpenGL-Refpages/gl4/html/glEnableVertexAttribArray.xhtml
+https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGenBuffers.xhtml
+https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetProgram.xhtml
+https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetActiveUniform.xhtml
+
+Documentation is starting to make sense and I feel more and more comfortable
+using it. There were a few advices that were invaluable, such as using:
+
+```cpp
+// According to the documentation, this is the recommended way to retrieve the
+// max length of the uniform variable of a shader because it guarantees that
+// we will have enough space to store the name of the uniform variable.
+// https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetActiveUniform.xhtml
+GLint maxLength;
+glGetProgramiv(program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
+```
+
+I am surprised at how fast I am learning. If I spent even more hours on this
+renderer I believe I could design and architect a renderer that can import
+models, adds them to the scene and renders them. However my estimation is that
+I would need at least 7 * 8 hours to figure all the math, OpenGL API, logic,
+algorithms and structure to do that.
