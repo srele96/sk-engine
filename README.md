@@ -2,6 +2,12 @@
 
 Engine for skill demonstration purposes assembled without tutorials.
 
+## References
+
+- [For GLFW3 reference their documentation.](https://www.glfw.org/docs/3.3/group__window.html#gacdf43e51376051d2c091662e9fe3d7b2)
+- [For OpenGL reference their documentation](https://registry.khronos.org/OpenGL-Refpages/gl4/html/)
+- [GLAD vs GLEW on stackoverflow](https://stackoverflow.com/questions/68821088/if-i-use-glad-and-not-glew-will-i-miss-on-something). I generated GLAD on [this website](https://glad.dav1d.de/). I generated all because I didn't feel the need to read through what do I need as I only wanted to get started and I wasn't under restrictions.
+
 ## How to build
 
 For build instructions see [`vcpkg.json`](./vcpkg.json) because it's package manager so I figured building documentation should be there.

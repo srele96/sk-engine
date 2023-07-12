@@ -181,6 +181,8 @@ int main() {
 
   glDeleteProgram(shaderProgram1);
   glDeleteProgram(shaderProgram2);
+
+  // https://community.khronos.org/t/does-glfwterminate-clean-everything/104514
   glfwTerminate();
 
   return EXIT_SUCCESS;
