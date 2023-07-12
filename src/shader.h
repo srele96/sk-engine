@@ -19,8 +19,7 @@ const std::string translateByOffset{R"glsl(
 
 namespace fragment {
 
-const std::string red{
-    R"glsl(
+const std::string red{R"glsl(
   #version 430 core
   out vec4 FragColor;
   void main() {
