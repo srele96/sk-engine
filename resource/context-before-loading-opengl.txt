@@ -1,0 +1,48 @@
+# Make context current before loading OpenGL functions
+
+Not sure if ChatGPT gave me correct answer, but makes sense because I've read
+something on GLFW documentation, but I forgot what. I just remember that it is
+related to loading opengl function pointers.
+
+--------------------------------------------------------------
+
+Me:
+
+why does glad fail to initialize if i don't make window context current?
+
+```
+  // Must call before calling gladGLLoader because glad fails to initialize.
+  glfwMakeContextCurrent(window);
+
+  if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
+    std::cerr << "Failed to initialize GLAD\n";
+    glfwTerminate();
+    return EXIT_FAILURE;
+  }
+```
+
+--------------------------------------------------------------
+
+ChatGPT:
+
+Calling glfwMakeContextCurrent(window) is necessary before initializing Glad (gladLoadGLLoader) because Glad requires an active OpenGL context to load the OpenGL function pointers. The context is responsible for managing the state and resources related to OpenGL operations.
+
+By calling glfwMakeContextCurrent(window), you are setting the specified window as the current OpenGL context, allowing Glad to successfully initialize and load the necessary function pointers for OpenGL.
+
+Without making the context current, Glad will not have an active context to work with, resulting in a failure to initialize. Therefore, it is important to set the context using glfwMakeContextCurrent before initializing Glad to ensure that the OpenGL function pointers are loaded correctly.
+
+--------------------------------------------------------------
+
+Me:
+
+why does it need opengl context before loading functions?
+
+--------------------------------------------------------------
+
+ChatGPT:
+
+Glad needs an active OpenGL context before loading the OpenGL functions because it operates by querying the OpenGL driver for the addresses of the OpenGL function pointers. These function pointers are required to access and invoke the corresponding OpenGL functions.
+
+The OpenGL context represents a state machine that stores all the necessary state and resources for executing OpenGL commands. When an OpenGL context is created and made current, it becomes the target for OpenGL operations. By setting the context as current, Glad ensures that it can successfully query and retrieve the function pointers from the underlying OpenGL implementation.
+
+Without an active OpenGL context, Glad does not have access to the necessary OpenGL functions and cannot load the function pointers. Therefore, it is crucial to have a valid and active OpenGL context before initializing Glad to ensure that the correct function pointers are retrieved and available for use throughout the program.

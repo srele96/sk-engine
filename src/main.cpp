@@ -114,6 +114,7 @@ int main() {
     return EXIT_FAILURE;
   }
 
+  // Must call before calling gladGLLoader because glad fails to initialize.
   glfwMakeContextCurrent(window);
 
   if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
