@@ -1,3 +1,4 @@
+#include <functional>
 #include <iostream>
 #include <vector>
 
@@ -32,6 +33,38 @@ GLuint createProgram(const GLchar *vsSource, const GLchar *fsSource) {
 
   return shaderProgram;
 }
+
+namespace comfortExtender {
+
+using EachProgramUniformFunc = std::function<void(
+    const GLint size, const GLenum type, const std::string &name)>;
+
+// Try out different approaches to explore what's possible to extend comfort
+// zone.
+void eachProgramUniform(const GLuint program, EachProgramUniformFunc &func) {
+  GLint params;
+  glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &params);
+
+  // According to the documentation, this is the recommended way to retrieve the
+  // max length of the uniform variable of a shader because it guarantees that
+  // we will have enough space to store the name of the uniform variable.
+  // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetActiveUniform.xhtml
+  GLint maxLength;
+  glGetProgramiv(program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
+
+  for (GLint i{0}; i != params; ++i) {
+    GLint size;
+    std::vector<GLchar> nameBuffer(maxLength);
+    GLenum type;
+    glGetActiveUniform(program, i, maxLength, nullptr, &size, &type,
+                       nameBuffer.data());
+    std::string name{nameBuffer.data()};
+
+    func(size, type, name);
+  }
+};
+
+} // namespace comfortExtender
 
 int main() {
   if (!glfwInit()) {
@@ -74,6 +107,15 @@ int main() {
                                       shader::fragment::red.c_str())};
   GLuint shaderProgram2{createProgram(shader::vertex::translateByOffset.c_str(),
                                       shader::fragment::blue.c_str())};
+
+  comfortExtender::EachProgramUniformFunc print{
+      [](const GLint size, const GLenum type, const std::string &name) {
+        std::cout << "shaderProgram1:\n"
+                  << "Name: \"" << name << "\", "
+                  << "Size: \"" << size << "\", "
+                  << "Type: \"" << type << "\"\n";
+      }};
+  comfortExtender::eachProgramUniform(shaderProgram1, print);
 
   const std::vector<GLfloat> triangle{-0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
                                       0.0f,  0.0f,  0.5f, 0.0f};
