@@ -108,14 +108,19 @@ int main() {
   GLuint shaderProgram2{createProgram(shader::vertex::translateByOffset.c_str(),
                                       shader::fragment::blue.c_str())};
 
-  comfortExtender::EachProgramUniformFunc print{
+  comfortExtender::EachProgramUniformFunc printUniformDetails{
       [](const GLint size, const GLenum type, const std::string &name) {
-        std::cout << "shaderProgram1:\n"
-                  << "Name: \"" << name << "\", "
+        std::cout << "Name: \"" << name << "\", "
                   << "Size: \"" << size << "\", "
                   << "Type: \"" << type << "\"\n";
       }};
-  comfortExtender::eachProgramUniform(shaderProgram1, print);
+  comfortExtender::eachProgramUniform(shaderProgram1, printUniformDetails);
+
+  const GLuint programWithManyUniforms{createProgram(
+      shader::vertex::useManyUniforms.c_str(), shader::fragment::red.c_str())};
+  comfortExtender::eachProgramUniform(programWithManyUniforms,
+                                      printUniformDetails);
+  glDeleteProgram(programWithManyUniforms);
 
   const std::vector<GLfloat> triangle{-0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
                                       0.0f,  0.0f,  0.5f, 0.0f};
