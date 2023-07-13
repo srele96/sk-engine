@@ -1,0 +1,3 @@
+# Fixture
+
+Somewhat minimalistic example of something that came to my mind, i think...
