@@ -156,8 +156,27 @@ int main() {
                                       printUniformDetails);
   glDeleteProgram(programWithManyUniforms);
 
-  const std::vector<GLfloat> triangle{-0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
-                                      0.0f,  0.0f,  0.5f, 0.0f};
+  const std::vector<GLfloat> pyramid{
+      // Front face
+      0.0f, 0.5f, 0.0f,   // Top vertex
+      -0.5f, -0.5f, 0.5f, // Bottom-left vertex
+      0.5f, -0.5f, 0.5f,  // Bottom-right vertex
+
+      // Back face
+      0.0f, 0.5f, 0.0f,    // Top vertex
+      0.5f, -0.5f, -0.5f,  // Bottom-right vertex
+      -0.5f, -0.5f, -0.5f, // Bottom-left vertex
+
+      // Left face
+      0.0f, 0.5f, 0.0f,    // Top vertex
+      -0.5f, -0.5f, -0.5f, // Bottom-left vertex
+      -0.5f, -0.5f, 0.5f,  // Bottom-right vertex
+
+      // Right face
+      0.0f, 0.5f, 0.0f,   // Top vertex
+      0.5f, -0.5f, 0.5f,  // Bottom-left vertex
+      0.5f, -0.5f, -0.5f, // Bottom-right vertex
+  };
   const std::vector<GLfloat> square{
       -0.5f, -0.5f, 0.0f, // Bottom-left vertex of the square
       0.5f,  -0.5f, 0.0f, // Bottom-right vertex of the square
@@ -175,8 +194,11 @@ int main() {
 
     glUseProgram(shaderProgram1);
 
-    glm::mat4 model{glm::rotate(glm::mat4{1.0f}, glm::radians(-55.0f),
+    glm::mat4 model{glm::rotate(glm::mat4{1.0f}, glm::radians(-0.0f),
                                 glm::vec3(1.0f, 0.0f, 0.0f))};
+    model = glm::rotate(model,
+                        static_cast<float>(glfwGetTime() * glm::radians(50.0f)),
+                        glm::vec3(0.5f, 1.0f, 0.0f));
     glm::mat4 view{1.0f};
     view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
     glm::mat4 projection{glm::perspective(glm::radians(45.0f),
@@ -190,7 +212,7 @@ int main() {
     const GLint matrixLocation1{glGetUniformLocation(shaderProgram1, "matrix")};
     glUniformMatrix4fv(matrixLocation1, 1, GL_FALSE, glm::value_ptr(matrix));
 
-    drawArrays(GL_TRIANGLES, 0, 3, triangle);
+    drawArrays(GL_TRIANGLES, 0, 3, pyramid);
 
     glUseProgram(shaderProgram2);
 
@@ -199,7 +221,7 @@ int main() {
     const GLint matrixLocation2{glGetUniformLocation(shaderProgram2, "matrix")};
     glUniformMatrix4fv(matrixLocation2, 1, GL_FALSE, glm::value_ptr(matrix));
 
-    drawArrays(GL_TRIANGLES, 0, 3, triangle);
+    drawArrays(GL_TRIANGLES, 0, 3, pyramid);
 
     glUniform2f(offsetLocation2, -0.4f, -0.4f);
 
