@@ -4,6 +4,9 @@
 
 #include "GLAD/glad.h"
 #include "GLFW/glfw3.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 #include "shader.h"
 
@@ -171,20 +174,35 @@ int main() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glUseProgram(shaderProgram1);
-    const GLuint offsetLocation1 =
-        glGetUniformLocation(shaderProgram1, "offset");
 
+    glm::mat4 model{glm::rotate(glm::mat4{1.0f}, glm::radians(-55.0f),
+                                glm::vec3(1.0f, 0.0f, 0.0f))};
+    glm::mat4 view{1.0f};
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+    glm::mat4 projection{glm::perspective(glm::radians(45.0f),
+                                          static_cast<float>(initialWidth) /
+                                              static_cast<float>(initialHeight),
+                                          0.1f, 100.0f)};
+    glm::mat4 matrix{projection * view * model};
+
+    const GLint offsetLocation1{glGetUniformLocation(shaderProgram1, "offset")};
     glUniform2f(offsetLocation1, 0.1f, 0.1f);
+    const GLint matrixLocation1{glGetUniformLocation(shaderProgram1, "matrix")};
+    glUniformMatrix4fv(matrixLocation1, 1, GL_FALSE, glm::value_ptr(matrix));
+
     drawArrays(GL_TRIANGLES, 0, 3, triangle);
 
     glUseProgram(shaderProgram2);
-    const GLuint offsetLocation2 =
-        glGetUniformLocation(shaderProgram2, "offset");
 
+    const GLint offsetLocation2{glGetUniformLocation(shaderProgram2, "offset")};
     glUniform2f(offsetLocation2, -0.1f, -0.1f);
+    const GLint matrixLocation2{glGetUniformLocation(shaderProgram2, "matrix")};
+    glUniformMatrix4fv(matrixLocation2, 1, GL_FALSE, glm::value_ptr(matrix));
+
     drawArrays(GL_TRIANGLES, 0, 3, triangle);
 
     glUniform2f(offsetLocation2, -0.4f, -0.4f);
+
     drawArrays(GL_TRIANGLE_STRIP, 0, 4, square);
 
     glfwSwapBuffers(window);
