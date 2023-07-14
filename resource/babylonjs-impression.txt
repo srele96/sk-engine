@@ -1,0 +1,27 @@
+# Babylon.js impression
+
+I apologize for terminology to people more senior than me reading this, correct me and I'll learn from it if you see me using wrong terminology or anything anywhere.
+
+Reading implementation of Babylon.js implementation left a strong impression on me.
+
+https://github.com/BabylonJS/Babylon.js/blob/master/packages/dev/core/src/Bones/skeleton.ts
+
+I saw some variables named `bone` or `bones` and I was like, what the hell is bone? Turns out, it is a bone. A bone of a model.
+
+Surprise, surprise! I watched a video that explains well loading models, animations, etc... The bone is a part of skeleton which is a part of model.
+
+The 3D model artists use bones to control the animation of a model.
+
+Another impression on me was world matrix, shader usage, class hierarchy design, interaction and relationships between classes, interfaces, etc...
+
+Overall, I have't read more beautiful implementation ever before. Maybe because I am mostly from JavaScript world so I could see that it's beautiful.
+
+I've read ReactJS implementation a few times, a few parts of it, it wasn't intuitive and understandable as Babylon.js implementation.
+
+I assume that is because they mostly used functions, maybe I didn't know how to read the code? I don't know. I could use file names as names of class to get an idea of what is relationship between functions used within it.
+
+Scene, engine, abstraction and loose coupling, interfaces, design of the whole thing was amazing. It left a strong impression on me.
+
+One approach while reading the code was reading a name of the class, then reading the list of method names. That gave me a good idea of what is going on.
+
+I read the names of classes it inherits from or interfaces it implements. The naming they used was very intuitive and relationships were very obvious.
