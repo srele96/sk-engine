@@ -63,3 +63,7 @@ I am confident I could create a `Node` class that contains object data and takes
 I've read implementation of various methods and classes of `Babylon.js` to gain understanding in some common patterns that widely adopted engine uses. I've read so much and I feel like I have so much information with very limited experience so far. They use advanced methods that I am not familiar with, however I've gained quite a few ideas on what to do now. I could play with frustum, matrices, rotations, etc... Figure out math by pen, paper, tutorials, books, etc... then implement that math using OpenGL and programming!
 
 Let's let it sink in!
+
+### Date 17.07.2023
+
+I find the project extremely helpful because I can use it to build new knowledge on the previous tinkering. I don't have to set up everything from scratch again, mess with library setup, repository setup, etc... I can document references and find them later. I find the idea of doing it like this very helpful. I wouldn't have gotten here if I didn't start working on [`sk-experiments`](https://github.com/srele96/sk-experiments) in march 2022. I am glad I did.
