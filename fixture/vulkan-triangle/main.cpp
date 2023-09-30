@@ -514,7 +514,5 @@ int main(int argc, char **argv) {
   //   Load or create the necessary resources like textures, shaders, and
   //   buffers.
 
-
-
   return 0;
 }
