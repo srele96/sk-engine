@@ -16,7 +16,8 @@ Add to `.vscode/settings.json` to improve autocomplete:
 {
   "clang-tidy.compilerArgs": [
     "-IC:/Users/Srecko/Documents/MyProjects/Private/container-sk-experiments/sk-engine/include",
-    "-IC:/Users/Srecko/Documents/MyProjects/Private/container-sk-experiments/sk-engine/build/vcpkg_installed/x64-windows/include"
+    "-IC:/Users/Srecko/Documents/MyProjects/Private/container-sk-experiments/sk-engine/build/vcpkg_installed/x64-windows/include",
+    "-IC:/VulkanSDK/1.3.261.1/Include"
   ]
 }
 ```
