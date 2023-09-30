@@ -6,7 +6,6 @@
 #include <iostream>
 #include <vector>
 
-// Callback function to handle messages from the validation layers
 VKAPI_ATTR VkBool32 VKAPI_CALL
 debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
               VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -115,7 +114,7 @@ int main(int argc, char **argv) {
   std::vector<VkLayerProperties> availableLayers(layerCount);
   vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
-  std::cout << "InstanceLayerProperties:\n";
+  std::cout << "(Info): InstanceLayerProperties:\n";
   for (const auto &layerProperties : availableLayers) {
     std::cout << "  - " << layerProperties.layerName << "\n";
   }
@@ -136,7 +135,7 @@ int main(int argc, char **argv) {
   // Always initialize before querying glfw required extensions, otherwise it
   // won't query any
   if (!glfwInit()) {
-    std::cerr << "Failed to initialize GLFW\n";
+    std::cerr << "Error. Failed to initialize GLFW\n";
     return EXIT_FAILURE;
   }
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -149,8 +148,8 @@ int main(int argc, char **argv) {
   uint32_t glfwExtensionCount = 0;
   const char **glfwExtensions =
       glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-  std::cout << "glfwExtensionCount is: " << glfwExtensionCount
-            << "\nglfwExtensions are:\n";
+  std::cout << "(Info): glfwExtensionCount is: " << glfwExtensionCount << "\n"
+            << "(Info): glfwExtensions are:\n";
   for (uint32_t i = 0; i < glfwExtensionCount; ++i) {
     std::cout << "  - " << glfwExtensions[i] << "\n";
   }
@@ -162,7 +161,7 @@ int main(int argc, char **argv) {
   // https://vulkan.lunarg.com/doc/view/1.3.204.1/windows/layer_configuration.html
   allExtensions.push_back("VK_EXT_debug_utils");
 
-  std::cout << "Instance extensions:\n";
+  std::cout << "(Info): Instance extensions:\n";
   for (const auto &extension : allExtensions) {
     std::cout << "  - " << extension << "\n";
   }
@@ -233,11 +232,11 @@ int main(int argc, char **argv) {
   vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
   if (deviceCount == 0) {
-    std::cerr << "No Vulkan-compatible GPUs found!"
+    std::cerr << "Error. No Vulkan-compatible GPUs found!"
               << "\n";
     // Handle this case gracefully
   } else {
-    std::cout << "Device count is: " << deviceCount << "\n";
+    std::cout << "Success. Device count is: " << deviceCount << "\n";
   }
 
   std::vector<VkPhysicalDevice> physicalDevices(deviceCount);
@@ -280,7 +279,8 @@ int main(int argc, char **argv) {
   }
 
   if (suitableDeviceFound) {
-    std::cout << "Found suitable GPU device with graphics queue family\n";
+    std::cout
+        << "(Info): Found suitable GPU device with graphics queue family\n";
 
     // print the information about the suitable device
 
@@ -292,22 +292,22 @@ int main(int argc, char **argv) {
     VkPhysicalDeviceFeatures deviceFeatures;
     vkGetPhysicalDeviceFeatures(selectedDevice, &deviceFeatures);
 
-    std::cout << "Selected Device Properties:\n";
-    std::cout << "Device Name: " << deviceProperties.deviceName << "\n";
-    std::cout << "Device Type: " << deviceProperties.deviceType << "\n";
-    std::cout << "API Version: " << deviceProperties.apiVersion << "\n";
-    std::cout << "Driver Version: " << deviceProperties.driverVersion << "\n";
+    std::cout << "(Info): Selected Device Properties:\n";
+    std::cout << "(Info): Device Name: " << deviceProperties.deviceName << "\n";
+    std::cout << "(Info): Device Type: " << deviceProperties.deviceType << "\n";
+    std::cout << "(Info): API Version: " << deviceProperties.apiVersion << "\n";
+    std::cout << "(Info): Driver Version: " << deviceProperties.driverVersion
+              << "\n";
     // You can access more properties as needed
 
-    std::cout << "\nSelected Device Features:\n";
-    std::cout << "Geometry Shader Support: " << deviceFeatures.geometryShader
-              << "\n";
-    std::cout << "Tessellation Shader Support: "
+    std::cout << "(Info): Selected Device Features:\n";
+    std::cout << "(Info): Geometry Shader Support: "
+              << deviceFeatures.geometryShader << "\n";
+    std::cout << "(Info): Tessellation Shader Support: "
               << deviceFeatures.tessellationShader << "\n";
     // You can access more features as needed
   } else {
-    std::cerr << "No suitable GPU with graphics queue family found!"
-              << "\n";
+    std::cerr << "Error. No suitable GPU with graphics queue family found!\n";
     // Handle this case gracefully
   }
 
@@ -324,13 +324,13 @@ int main(int argc, char **argv) {
                                        &enumerateDeviceExtensionCount,
                                        enumerateDeviceExtensions.data());
 
-  std::cout << "Device Extensions:\n";
+  std::cout << "(Info): Device Extensions:\n";
   for (const auto &extension : enumerateDeviceExtensions) {
     // The list clutters terminal because it's too big. Verify the extension
     // existence.
     if (std::string(extension.extensionName) == "VK_KHR_swapchain") {
-      std::cout << "(info): Found extension on device\n";
-      std::cout << "  - " << extension.extensionName << "\n";
+      std::cout << "  - (info): Found extension on device\n";
+      std::cout << "    - " << extension.extensionName << "\n";
     }
   }
 
@@ -345,10 +345,11 @@ int main(int argc, char **argv) {
   // Define the queue family indices you need (e.g., graphicsQueueFamilyIndex).
 
   if (suitableDeviceFound) {
-    std::cout << "Physical device is found, graphicsQueueFamilyIndex is "
-                 "hopefully set correctly.\n";
+    std::cout
+        << "Success. Physical device is found, graphicsQueueFamilyIndex is "
+           "hopefully set correctly.\n";
   } else {
-    std::cerr << "We are missing graphicsQueueFamilyIndex...\n";
+    std::cerr << "Error. Missing graphicsQueueFamilyIndex!\n";
   }
 
   VkDevice logicalDevice;
@@ -386,12 +387,12 @@ int main(int argc, char **argv) {
   // Create the logical device.
   if (VkResult result = vkCreateDevice(selectedDevice, &deviceCreateInfo,
                                        nullptr, &logicalDevice);
-      result == VK_SUCCESS) {
-    std::cout << "Success creating logical device.\n";
-  } else {
-    std::cerr << "Failed to create logical device!"
-              << "\n";
+      result != VK_SUCCESS) {
+    std::cerr << "Error. Failed to create logical device!"
+              << string_VkResult(result) << "\n";
     // Handle this case gracefully
+  } else {
+    std::cout << "Success. Created logical device.\n";
   }
 
   // Retrieve handles to the queues from the logical device.
@@ -409,18 +410,20 @@ int main(int argc, char **argv) {
   GLFWwindow *window =
       glfwCreateWindow(800, 600, "Vulkan Window", nullptr, nullptr);
   if (!window) {
-    std::cerr << "Failed to create GLFW window!" << std::endl;
+    std::cerr << "Error. Failed to create GLFW window!\n";
     glfwTerminate();
+  } else {
+    std::cout << "Success. Created GLFW window\n";
   }
 
   VkSurfaceKHR surface;
   if (VkResult result =
           glfwCreateWindowSurface(instance, window, nullptr, &surface);
       result != VK_SUCCESS) {
-    std::cerr << "Failed to create Vulkan surface! Reason:\n"
+    std::cerr << "Error. Failed to create Vulkan surface! Reason:\n"
               << string_VkResult(result) << "\n";
   } else {
-    std::cout << "Created vulkan surface succesfully\n";
+    std::cout << "Success. Created vulkan surface succesfully\n";
   }
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -496,10 +499,10 @@ int main(int argc, char **argv) {
   if (VkResult result = vkCreateSwapchainKHR(
           logicalDevice, &swapchainCreateInfo, nullptr, &swapchain);
       result != VK_SUCCESS) {
-    std::cerr << "Failed to create Vulkan Swapchain: "
+    std::cerr << "Error. Failed to create Vulkan Swapchain: "
               << string_VkResult(result) << "\n";
   } else {
-    std::cout << "Created Vulkan Swapchain successfully\n";
+    std::cout << "Success. Vulkan Swapchain successfully\n";
   }
 
   // END -- Creating the Swap Chain
