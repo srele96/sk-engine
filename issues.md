@@ -10,28 +10,29 @@ A collection of documents I used to troubleshoot all the issues while setting up
 
 ## Fix Visual Studio Code linter
 
-Add to `.vscode/settings.json` to improve autocomplete:
+Apparently for unknown reason to me, the two below are complementary.
+
+Add to `.vscode/settings.json`:
+
+Enabling this removed squiggles.
 
 ```json
 {
   "clang-tidy.compilerArgs": [
     "-IC:/Users/Srecko/Documents/MyProjects/Private/container-sk-experiments/sk-engine/include",
-    "-IC:/Users/Srecko/Documents/MyProjects/Private/container-sk-experiments/sk-engine/build/vcpkg_installed/x64-windows/include",
+    "-IC:/Users/Srecko/Documents/MyProjects/Private/container-sk-experiments/sk-engine/build/vcpkg_installed/x64-mingw-dynamic/include",
     "-IC:/VulkanSDK/1.3.261.1/Include"
   ]
 }
 ```
 
-Alternatively, add to `.vscode/c_cpp_properties.json`:
+Add to `.vscode/c_cpp_properties.json`, and make sure the glob is the last, for some reason it did not work when it was first. This made the VSCode able to find vulkan includes.
 
 ```json
 {
   "configurations": [
     {
-      "includePath": [
-        "${workspaceFolder}\\include",
-        "${workspaceFolder}\\build\\vcpkg_installed\\x64-windows\\include"
-      ]
+      "includePath": ["C:/VulkanSDK/1.3.261.1/Include", "${workspaceFolder}/**"]
     }
   ]
 }
