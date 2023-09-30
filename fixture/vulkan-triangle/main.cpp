@@ -309,6 +309,29 @@ int main(int argc, char **argv) {
     // Handle this case gracefully
   }
 
+  // the swapchain creation was freezing the program and i found out that i have
+  // to enable the swapchain extension on logical device check available device
+
+  // extensions on my machine
+  uint32_t enumerateDeviceExtensionCount = 0;
+  vkEnumerateDeviceExtensionProperties(selectedDevice, nullptr,
+                                       &enumerateDeviceExtensionCount, nullptr);
+  std::vector<VkExtensionProperties> enumerateDeviceExtensions(
+      enumerateDeviceExtensionCount);
+  vkEnumerateDeviceExtensionProperties(selectedDevice, nullptr,
+                                       &enumerateDeviceExtensionCount,
+                                       enumerateDeviceExtensions.data());
+
+  std::cout << "Device Extensions:\n";
+  for (const auto &extension : enumerateDeviceExtensions) {
+    // The list clutters terminal because it's too big. Verify the extension
+    // existence.
+    if (std::string(extension.extensionName) == "VK_KHR_swapchain") {
+      std::cout << "(info): Found extension on device\n";
+      std::cout << "  - " << extension.extensionName << "\n";
+    }
+  }
+
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -350,7 +373,13 @@ int main(int argc, char **argv) {
   deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
   deviceCreateInfo.queueCreateInfoCount = 1;
   deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
-  // Add device extensions as needed in deviceCreateInfo.ppEnabledExtensionNames
+  std::vector<const char *> deviceExtensions = {
+      VK_KHR_SWAPCHAIN_EXTENSION_NAME, // swapchain creation was failing without
+                                       // this extension
+  };
+  deviceCreateInfo.enabledExtensionCount =
+      static_cast<uint32_t>(deviceExtensions.size());
+  deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
   // Create the logical device.
   if (VkResult result = vkCreateDevice(selectedDevice, &deviceCreateInfo,
