@@ -10,7 +10,7 @@ Engine for skill demonstration purposes assembled without tutorials.
 
 ## How to build
 
-For build instructions see [`vcpkg.json`](./vcpkg.json) because it's package manager so I figured building documentation should be there.
+For build instructions see [`vcpkg.md`](./vcpkg.md) because it's package manager so I figured building documentation should be there.
 
 ## Creation process
 

@@ -7,6 +7,10 @@
     {
       "name": "glfw3",
       "version>=": "3.3.8"
+    },
+    {
+      "name": "vulkan",
+      "version>=": "1.1.82.1#6"
     }
   ],
   "builtin-baseline": "6d69bbacd2fbeae957f034dbbd2b454b5e3941fe"

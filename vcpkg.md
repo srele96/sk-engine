@@ -9,6 +9,7 @@ Setup documentation.
 - [msys2 _(I am using it to install cmake, clang, gcc, I think it's some kind of package manager for windows)_](https://www.msys2.org/)
 - [cmake](https://cmake.org/)
 - c++ compiler _(I have both [clang](https://clang.llvm.org/) and [gcc](https://gcc.gnu.org/), but I believe cmake uses gcc by default)_. You can download them using [cmake](https://cmake.org/).
+- [Download Vulkan SDK](https://vulkan.lunarg.com/sdk/home). I found link to Vulkan SDK on [Getting Started with the Windows Vulkan SDK](https://vulkan.lunarg.com/doc/sdk/1.3.261.1/windows/getting_started.html).
 
 ## How to build
 
@@ -17,7 +18,7 @@ Follow instructions from [Sandbox README.md](../../../sandbox/README.md) for mor
 Generate project:
 
 ```PowerShell
-cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=C:\src\vcpkg\scripts\buildsystems\vcpkg.cmake
+cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=C:\src\vcpkg\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-mingw-dynamic
 ```
 
 Build:
