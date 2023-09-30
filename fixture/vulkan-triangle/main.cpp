@@ -514,5 +514,19 @@ int main(int argc, char **argv) {
   //   Load or create the necessary resources like textures, shaders, and
   //   buffers.
 
+  // Shader Creation:
+  //   a. Write a vertex shader in GLSL or HLSL that specifies the position of
+  //   each vertex. b. Write a fragment shader in GLSL or HLSL that specifies
+  //   the color of each fragment. c. Compile these shaders into SPIR-V format.
+  //   d. Load these SPIR-V bytecode files into your program.
+  //   e. Create Vulkan shader module objects for each shader.
+
+  // setup vulkan memory allocator library ...
+
+  // Buffer Creation: (USING VULKAN MEMORY ALLOCATOR LIBRARY)
+  //   a. Define the data for your triangle's vertices, including positions and
+  //   colors. b. Create a Vulkan buffer to hold this data. c. Allocate memory
+  //   for this buffer, and copy your vertex data into this buffer.
+
   return 0;
 }

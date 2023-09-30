@@ -5,8 +5,8 @@ param (
 
 function compileFiles {
   param (
-      [Parameter(Mandatory = $true)]
-      [string[]]$files
+    [Parameter(Mandatory = $true)]
+    [string[]]$files
   )
 
   foreach ($file in $files) {
