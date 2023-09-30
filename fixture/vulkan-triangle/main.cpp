@@ -6,6 +6,27 @@
 #include <iostream>
 #include <vector>
 
+// Callback function to handle messages from the validation layers
+VKAPI_ATTR VkBool32 VKAPI_CALL
+debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+              VkDebugUtilsMessageTypeFlagsEXT messageType,
+              const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
+              void *pUserData) {
+  std::cerr << "Debug(Validation Layer): " << pCallbackData->pMessage << "\n";
+
+  // The pfnUserCallback function is called by the Vulkan implementation for
+  // events that match any bit set in the VkDebugUtilsMessageSeverityFlagBitsEXT
+  // and VkDebugUtilsMessageTypeFlagBitsEXT that were included in
+  // VkDebugUtilsMessengerCreateInfoEXT passed when creating
+  // VkDebugUtilsMessengerEXT object. The callback trigger conditions are also
+  // controlled by the contents of pMessageIdName and pMessageIdNumber in
+  // VkDebugUtilsMessengerCallbackDataEXT.
+  //
+  // The application should always return VK_FALSE. The VK_TRUE value is
+  // reserved for use in layer development.
+  return VK_FALSE;
+}
+
 int main(int argc, char **argv) {
   uint32_t vulkanVersion;
 
@@ -87,9 +108,30 @@ int main(int argc, char **argv) {
   appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
   appInfo.apiVersion = VK_API_VERSION_1_0;
 
+  // check available layers on my machine because i dont see output from
+  // validation layers
+  uint32_t layerCount;
+  vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+  std::vector<VkLayerProperties> availableLayers(layerCount);
+  vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+  std::cout << "InstanceLayerProperties:\n";
+  for (const auto &layerProperties : availableLayers) {
+    std::cout << "  - " << layerProperties.layerName << "\n";
+  }
+  // end checking validation layers
+
+  const std::vector<const char *> validationLayers = {
+      "VK_LAYER_KHRONOS_validation"}; // the app is freezing when creating
+                                      // swapchain so i have to find out a way
+                                      // to debug it and find out the reason
+                                      // that happens
+
   VkInstanceCreateInfo createInfo = {};
   createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
   createInfo.pApplicationInfo = &appInfo;
+  createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+  createInfo.ppEnabledLayerNames = validationLayers.data();
 
   // Always initialize before querying glfw required extensions, otherwise it
   // won't query any
@@ -113,14 +155,67 @@ int main(int argc, char **argv) {
     std::cout << "  - " << glfwExtensions[i] << "\n";
   }
 
-  createInfo.enabledExtensionCount = glfwExtensionCount;
-  createInfo.ppEnabledExtensionNames = glfwExtensions;
+  // append more extensions
+  std::vector<const char *> allExtensions(glfwExtensions,
+                                          glfwExtensions + glfwExtensionCount);
+  // layer for debug callback requires debug utils extension to be enabled
+  allExtensions.push_back("VK_EXT_debug_utils");
+
+  std::cout << "Instance extensions:\n";
+  for (const auto &extension : allExtensions) {
+    std::cout << "  - " << extension << "\n";
+  }
+
+  // extensions are required to use glfw for window creation with vulkan
+  createInfo.enabledExtensionCount =
+      static_cast<uint32_t>(allExtensions.size());
+  createInfo.ppEnabledExtensionNames = allExtensions.data();
 
   VkInstance instance;
 
   if (VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
       result != VK_SUCCESS) {
-    std::cerr << "Failed to create instance: " << result << "\n";
+    std::cerr << "Error. Failed to create instance: " << result << "\n";
+  } else {
+    std::cout << "Success. Created vulkan instance\n";
+  }
+
+  // setup debug because the app is freezing on swapchain creation
+  VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo = {};
+  debugCreateInfo.sType =
+      VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+  debugCreateInfo.messageSeverity =
+      VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+      VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+      VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+  debugCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                                VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                                VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+  debugCreateInfo.pfnUserCallback = debugCallback;
+
+  PFN_vkCreateDebugUtilsMessengerEXT vkCreateDebugUtilsMessengerEXT =
+      reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
+          vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT"));
+
+  if (vkCreateDebugUtilsMessengerEXT == nullptr) {
+    std::cerr << "Errror. Could not load vkCreateDebugUtilsMessengerEXT\n";
+  } else {
+    std::cout << "Success. Loaded vkCreateDebugUtilsMessengerEXT\n";
+  }
+
+  // Extemely usefull. Once I loaded the callback here, I saw the following
+  // error log:
+  // validation layer: vkCreateSwapchainKHR: Driver's function
+  // pointer was NULL, returning VK_SUCCESS. Was the VK_KHR_swapchain extension
+  // enabled?
+  VkDebugUtilsMessengerEXT debugMessenger;
+  if (VkResult result = vkCreateDebugUtilsMessengerEXT(
+          instance, &debugCreateInfo, nullptr, &debugMessenger);
+      result != VK_SUCCESS) {
+    std::cerr << "Error. Failed to create CreateDebugUtilsMessengerEXT: "
+              << string_VkResult(result) << "\n";
+  } else {
+    std::cout << "Success. Created CreateDebugUtilsMessengerEXT\n";
   }
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -296,6 +391,87 @@ int main(int argc, char **argv) {
   } else {
     std::cout << "Created vulkan surface succesfully\n";
   }
+
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  // Swapchain Creation:
+  //
+  //   Create a swapchain, which handles the rendering output to the window
+  //   surface.
+
+  VkSurfaceCapabilitiesKHR capabilities;
+  std::vector<VkSurfaceFormatKHR> formats;
+  std::vector<VkPresentModeKHR> presentModes;
+
+  // BEGIN -- Querying the Swap Chain Support
+  vkGetPhysicalDeviceSurfaceCapabilitiesKHR(selectedDevice, surface,
+                                            &capabilities);
+  uint32_t formatCount;
+  vkGetPhysicalDeviceSurfaceFormatsKHR(selectedDevice, surface, &formatCount,
+                                       nullptr);
+  if (formatCount != 0) {
+    std::cout << "Resizing formats to: " << formatCount << "\n";
+    formats.resize(formatCount);
+    vkGetPhysicalDeviceSurfaceFormatsKHR(selectedDevice, surface, &formatCount,
+                                         formats.data());
+  } else {
+    std::cerr << "Skipping format resizing\n";
+  }
+
+  uint32_t presentModeCount;
+  vkGetPhysicalDeviceSurfacePresentModesKHR(selectedDevice, surface,
+                                            &presentModeCount, nullptr);
+  if (presentModeCount != 0) {
+    std::cout << "Resizing presentModeCount to: " << presentModeCount << "\n";
+    presentModes.resize(presentModeCount);
+    vkGetPhysicalDeviceSurfacePresentModesKHR(
+        selectedDevice, surface, &presentModeCount, presentModes.data());
+  } else {
+    std::cerr << "Skipping presentModeCount resizing\n";
+  }
+  // END -- Querying the Swap Chain Support Details
+
+  // BEGIN -- Creating the Swap Chain
+
+  VkSurfaceFormatKHR surfaceFormat = formats[0]; // Choose a format
+  VkPresentModeKHR presentMode =
+      VK_PRESENT_MODE_FIFO_KHR; // Choose a present mode
+
+  int windowWidth, windowHeight;
+  glfwGetFramebufferSize(window, &windowWidth, &windowHeight);
+
+  VkSwapchainCreateInfoKHR swapchainCreateInfo = {};
+  swapchainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+  swapchainCreateInfo.surface = surface;
+  swapchainCreateInfo.minImageCount = capabilities.minImageCount + 1;
+  swapchainCreateInfo.imageFormat = surfaceFormat.format;
+  swapchainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;
+  swapchainCreateInfo.imageExtent = {static_cast<uint32_t>(windowWidth),
+                                     static_cast<uint32_t>(windowHeight)};
+  swapchainCreateInfo.imageArrayLayers = 1;
+  swapchainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+  swapchainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+  swapchainCreateInfo.preTransform = capabilities.currentTransform;
+  swapchainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+  swapchainCreateInfo.presentMode = presentMode;
+  swapchainCreateInfo.clipped = VK_TRUE;
+  swapchainCreateInfo.oldSwapchain = VK_NULL_HANDLE;
+
+  std::cout << "Created swapchainCreateInfo\n";
+
+  // something is wrong, call to this function freezes the program...
+  VkSwapchainKHR swapchain;
+  if (VkResult result = vkCreateSwapchainKHR(
+          logicalDevice, &swapchainCreateInfo, nullptr, &swapchain);
+      result != VK_SUCCESS) {
+    std::cerr << "Failed to create Vulkan Swapchain: "
+              << string_VkResult(result) << "\n";
+  } else {
+    std::cout << "Created Vulkan Swapchain successfully\n";
+  }
+
+  // END -- Creating the Swap Chain
 
   return 0;
 }
