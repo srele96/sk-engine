@@ -159,6 +159,7 @@ int main(int argc, char **argv) {
   std::vector<const char *> allExtensions(glfwExtensions,
                                           glfwExtensions + glfwExtensionCount);
   // layer for debug callback requires debug utils extension to be enabled
+  // https://vulkan.lunarg.com/doc/view/1.3.204.1/windows/layer_configuration.html
   allExtensions.push_back("VK_EXT_debug_utils");
 
   std::cout << "Instance extensions:\n";
@@ -193,6 +194,7 @@ int main(int argc, char **argv) {
                                 VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
   debugCreateInfo.pfnUserCallback = debugCallback;
 
+  // https://www.reddit.com/r/vulkan/comments/czluzc/undefined_reference_to/
   PFN_vkCreateDebugUtilsMessengerEXT vkCreateDebugUtilsMessengerEXT =
       reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
           vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT"));
@@ -501,6 +503,14 @@ int main(int argc, char **argv) {
   }
 
   // END -- Creating the Swap Chain
+
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  // Resource Creation:
+  //
+  //   Load or create the necessary resources like textures, shaders, and
+  //   buffers.
 
   return 0;
 }
