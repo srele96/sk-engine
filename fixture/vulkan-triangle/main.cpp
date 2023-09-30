@@ -146,6 +146,7 @@ int main(int argc, char **argv) {
 
   // Query the required instance extensions from GLFW
   uint32_t glfwExtensionCount = 0;
+  // extensions are required to use glfw for window creation with vulkan
   const char **glfwExtensions =
       glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
   std::cout << "(Info): glfwExtensionCount is: " << glfwExtensionCount << "\n"
@@ -166,7 +167,6 @@ int main(int argc, char **argv) {
     std::cout << "  - " << extension << "\n";
   }
 
-  // extensions are required to use glfw for window creation with vulkan
   createInfo.enabledExtensionCount =
       static_cast<uint32_t>(allExtensions.size());
   createInfo.ppEnabledExtensionNames = allExtensions.data();
@@ -494,7 +494,6 @@ int main(int argc, char **argv) {
 
   std::cout << "Created swapchainCreateInfo\n";
 
-  // something is wrong, call to this function freezes the program...
   VkSwapchainKHR swapchain;
   if (VkResult result = vkCreateSwapchainKHR(
           logicalDevice, &swapchainCreateInfo, nullptr, &swapchain);
@@ -514,6 +513,8 @@ int main(int argc, char **argv) {
   //
   //   Load or create the necessary resources like textures, shaders, and
   //   buffers.
+
+
 
   return 0;
 }
