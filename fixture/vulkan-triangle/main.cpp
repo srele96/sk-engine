@@ -6,6 +6,7 @@
 #define VMA_IMPLEMENTATION
 #include "vk_mem_alloc.h"
 #include "vulkan/vk_enum_string_helper.h"
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -621,6 +622,7 @@ int main(int argc, char **argv) {
   vmaAllocatorCreateInfo.physicalDevice = selectedDevice;
   vmaAllocatorCreateInfo.device = logicalDevice;
   vmaAllocatorCreateInfo.instance = instance;
+
   VmaAllocator allocator;
   if (VkResult result = vmaCreateAllocator(&vmaAllocatorCreateInfo, &allocator);
       result != VK_SUCCESS) {
@@ -629,6 +631,44 @@ int main(int argc, char **argv) {
   } else {
     std::cout << "Success. Created Vulkan Memory Allocator.\n";
   }
+
+  // Create vertex data
+  const float vertexData[] = {
+      0.0f,  1.0f,  0.0f, //
+      -1.0f, -1.0f, 0.0f, //
+      1.0f,  -1.0f, 0.0f, //
+  };
+  VkBufferCreateInfo bufferCreateInfo{};
+  bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+  bufferCreateInfo.size = sizeof(vertexData);
+  bufferCreateInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+  bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+  VmaAllocationCreateInfo vertexBufferAllocationCreateInfo{};
+  vertexBufferAllocationCreateInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+
+  VkBuffer vertexBuffer;
+  VmaAllocation vertexBufferAllocation;
+
+  if (VkResult result = vmaCreateBuffer(
+          allocator, &bufferCreateInfo, &vertexBufferAllocationCreateInfo,
+          &vertexBuffer, &vertexBufferAllocation, nullptr);
+      result != VK_SUCCESS) {
+    std::cerr << "Error. Failed to create vertex buffer: "
+              << string_VkResult(result) << "\n";
+  } else {
+    std::cout << "Success. Created vertex buffer.\n";
+  }
+
+  void *mapVertexData = nullptr;
+  if (VkResult result = vmaMapMemory(allocator, vertexBufferAllocation, &mapVertexData); result != VK_SUCCESS) {
+    std::cerr << "Error. Failed to map memory: " << string_VkResult(result) << "\n";
+  } else {
+    std::cout << "Success."
+  }
+  std::copy(std::begin(vertexData), std::end(vertexData),
+            static_cast<float *>(mapVertexData));
+  vmaUnmapMemory(allocator, vertexBufferAllocation);
 
   return 0;
 }
