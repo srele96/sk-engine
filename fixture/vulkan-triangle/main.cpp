@@ -820,40 +820,13 @@ int main(int argc, char **argv) {
   //       based on what you're rendering. Decide on the format of these
   //       attachments
 
-  //   Determine Attachment Descriptions:
-  //       Create a VkAttachmentDescription structure for each attachment.
-  //       Specify the format, usage, and other properties of each attachment.
-
-  //   Determine Subpass Descriptions:
-  //       Create a VkSubpassDescription structure.
-  //       Specify the attachments that will be used in this subpass and how
-  //       they will be used (e.g., as color attachments, depth-stencil
-  //       attachments, etc.).
-
-  //   Determine Subpass Dependencies:
-  //       If you have multiple subpasses, define the dependencies between them
-  //       using VkSubpassDependency structures. Specify when each subpass
-  //       should execute relative to others.
-
-  //   Create Render Pass Create Info:
-  //       Create a VkRenderPassCreateInfo structure.
-  //       Populate it with the attachment descriptions, subpass descriptions,
-  //       and subpass dependencies.
-
-  //   Create the Render Pass:
-  //       Call vkCreateRenderPass, passing in the VkRenderPassCreateInfo
-  //       structure, to create the render pass.
-
-  //   Handle the Render Pass:
-  //       Store the handle to the render pass (VkRenderPass) returned by
-  //       vkCreateRenderPass for later use.
-
   // Not sure about this part... I'm supposed to assemble renderpass however i'm
   // boggled down with intricacies of its settings. Maybe i should not be and
   // should simply get the code to setup render pass and debug as issues arise.
 
-  VkAttachmentDescription colorAttachment{};
-  colorAttachment.format = surfaceFormat.format; // Use swapchain image format
+  VkAttachmentDescription colorAttachment = {};
+  colorAttachment.format =
+      VK_FORMAT_B8G8R8A8_UNORM; // assuming your swapchain image format is this
   colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
   colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
   colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -861,6 +834,49 @@ int main(int argc, char **argv) {
   colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
   colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
   colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+  VkAttachmentReference colorAttachmentRef = {};
+  colorAttachmentRef.attachment =
+      0; // refers to the index of the attachment description array
+  colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+  //   Determine Subpass Descriptions:
+  //       Create a VkSubpassDescription structure.
+  //       Specify the attachments that will be used in this subpass and how
+  //       they will be used (e.g., as color attachments, depth-stencil
+  //       attachments, etc.).
+
+  VkSubpassDescription subpassDescription = {};
+  subpassDescription.pipelineBindPoint =
+      VK_PIPELINE_BIND_POINT_GRAPHICS; // this subpass is for graphics rendering
+  subpassDescription.colorAttachmentCount =
+      1; // this subpass writes to 1 color attachment
+  subpassDescription.pColorAttachments =
+      &colorAttachmentRef; // the attachment to write to
+
+  //   Create Render Pass Create Info:
+  //       Create a VkRenderPassCreateInfo structure.
+  //       Populate it with the attachment descriptions, subpass descriptions,
+  //       and subpass dependencies.
+
+  VkRenderPassCreateInfo renderPassCreateInfo = {};
+  renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+  renderPassCreateInfo.attachmentCount = 1;
+  renderPassCreateInfo.pAttachments = &colorAttachment;
+  renderPassCreateInfo.subpassCount = 1;
+  renderPassCreateInfo.pSubpasses = &subpassDescription;
+
+  //   Create the Render Pass:
+  //       Call vkCreateRenderPass, passing in the VkRenderPassCreateInfo
+  //       structure, to create the render pass.
+
+  VkRenderPass renderPass;
+  if (vkCreateRenderPass(logicalDevice, &renderPassCreateInfo, nullptr,
+                         &renderPass) != VK_SUCCESS) {
+    std::cerr << "Error. Failed to create render pass.\n";
+  } else {
+    std::cout << "Success. Created render pass.\n";
+  }
 
   return 0;
 }
