@@ -920,5 +920,7 @@ int main(int argc, char **argv) {
     std::cout << "Success. Created graphics pipeline.\n";
   }
 
+  // TODO: Find everything that needs to be cleaned up and clean it up.
+
   return 0;
 }
