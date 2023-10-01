@@ -2,6 +2,9 @@
 // vulkan must be included before glfw
 #define GLFW_INCLUDE_VULKAN
 #include "GLFW/glfw3.h"
+// Fixes: undefined reference to `vmaCreateAllocator'
+#define VMA_IMPLEMENTATION
+#include "vk_mem_alloc.h"
 #include "vulkan/vk_enum_string_helper.h"
 #include <filesystem>
 #include <fstream>
@@ -608,6 +611,20 @@ int main(int argc, char **argv) {
     std::cout << "Success. Created fragment shader\n";
   } catch (const std::exception &e) {
     std::cerr << e.what();
+  }
+
+  VmaAllocatorCreateInfo vmaAllocatorCreateInfo{};
+  vmaAllocatorCreateInfo.vulkanApiVersion = vulkanVersion;
+  vmaAllocatorCreateInfo.physicalDevice = selectedDevice;
+  vmaAllocatorCreateInfo.device = logicalDevice;
+  vmaAllocatorCreateInfo.instance = instance;
+  VmaAllocator allocator;
+  if (VkResult result = vmaCreateAllocator(&vmaAllocatorCreateInfo, &allocator);
+      result != VK_SUCCESS) {
+    std::cerr << "Error. Failed to create Vulkan Memory Allocator: "
+              << string_VkResult(result) << "\n";
+  } else {
+    std::cout << "Success. Created Vulkan Memory Allocator.\n";
   }
 
   return 0;

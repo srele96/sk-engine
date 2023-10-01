@@ -28,6 +28,7 @@ target_link_libraries(
   PRIVATE
   glfw
   Vulkan::Vulkan
+  GPUOpen::VulkanMemoryAllocator
   # no idea how to link sdl2 to display graphical window... ill use glfw for
   # now because i can save some time cus its already set up
   # 
