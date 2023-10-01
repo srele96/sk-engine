@@ -873,11 +873,51 @@ int main(int argc, char **argv) {
   //       structure, to create the render pass.
 
   VkRenderPass renderPass;
-  if (vkCreateRenderPass(logicalDevice, &renderPassCreateInfo, nullptr,
-                         &renderPass) != VK_SUCCESS) {
-    std::cerr << "Error. Failed to create render pass.\n";
+  if (VkResult result = vkCreateRenderPass(logicalDevice, &renderPassCreateInfo,
+                                           nullptr, &renderPass);
+      result != VK_SUCCESS) {
+    std::cerr << "Error. Failed to create render pass."
+              << string_VkResult(result) << "\n";
   } else {
     std::cout << "Success. Created render pass.\n";
+  }
+
+  VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo{};
+  graphicsPipelineCreateInfo.sType =
+      VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+  graphicsPipelineCreateInfo.stageCount =
+      static_cast<uint32_t>(shaderStages.size());
+  graphicsPipelineCreateInfo.pStages = shaderStages.data();
+  graphicsPipelineCreateInfo.pVertexInputState =
+      &pipelineVertexInputStateCreateInfo;
+  graphicsPipelineCreateInfo.pInputAssemblyState =
+      &pipelineInputAssemblyStateCreateInfo;
+  graphicsPipelineCreateInfo.pViewportState = &pipelineViewportStateCreateInfo;
+  graphicsPipelineCreateInfo.pRasterizationState =
+      &pipelineRasterizationStateCreateInfo;
+  graphicsPipelineCreateInfo.pMultisampleState =
+      &pipelineMultisampleStateCreateInfo;
+  graphicsPipelineCreateInfo.pDepthStencilState =
+      &pipelineDepthStencilStateCreateInfo;
+  graphicsPipelineCreateInfo.pColorBlendState =
+      &pipelineColorBlendStateCreateInfo;
+  graphicsPipelineCreateInfo.layout = pipelineLayout;
+  graphicsPipelineCreateInfo.renderPass = renderPass;
+  graphicsPipelineCreateInfo.subpass =
+      0; // index of the subpass where this graphics pipeline will be used
+  graphicsPipelineCreateInfo.basePipelineHandle =
+      VK_NULL_HANDLE;                                // no base pipeline
+  graphicsPipelineCreateInfo.basePipelineIndex = -1; // no base pipeline
+
+  VkPipeline graphicsPipeline;
+  if (VkResult result = vkCreateGraphicsPipelines(
+          logicalDevice, VK_NULL_HANDLE, 1, &graphicsPipelineCreateInfo,
+          nullptr, &graphicsPipeline);
+      result != VK_SUCCESS) {
+    std::cerr << "Error. Failed to create graphics pipeline."
+              << string_VkResult(result) << "\n";
+  } else {
+    std::cout << "Success. Created graphics pipeline.\n";
   }
 
   return 0;
