@@ -17,6 +17,11 @@ set(
   ${CMAKE_CURRENT_SOURCE_DIR}/shader.frag.spv
 )
 
+# There is a possibility to make cmake build shaders, however one of the issues
+# I had when I tried to implement it is add_custom_command not running and I
+# didn't want to spend more time figuring that out as that feature wasn't worth
+# the time because I want to focus on displaying a triangle.
+
 # copy files to make them available at runtime for the executable as relative
 # path to it
 foreach(SPV_FILE ${SPV_FILES})
