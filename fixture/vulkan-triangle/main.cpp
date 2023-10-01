@@ -291,17 +291,20 @@ int main(int argc, char **argv) {
     vkGetPhysicalDeviceFeatures(selectedDevice, &deviceFeatures);
 
     std::cout << "(Info): Selected Device Properties:\n";
-    std::cout << "  - (Info): Device Name: " << deviceProperties.deviceName << "\n";
-    std::cout << "  - (Info): Device Type: " << deviceProperties.deviceType << "\n";
-    std::cout << "  - (Info): API Version: " << deviceProperties.apiVersion << "\n";
-    std::cout << "  - (Info): Driver Version: " << deviceProperties.driverVersion
+    std::cout << "  - Device Name: " << deviceProperties.deviceName
               << "\n";
+    std::cout << "  - Device Type: " << deviceProperties.deviceType
+              << "\n";
+    std::cout << "  - API Version: " << deviceProperties.apiVersion
+              << "\n";
+    std::cout << "  - Driver Version: "
+              << deviceProperties.driverVersion << "\n";
     // You can access more properties as needed
 
     std::cout << "(Info): Selected Device Features:\n";
-    std::cout << "  - (Info): Geometry Shader Support: "
+    std::cout << "  - Geometry Shader Support: "
               << deviceFeatures.geometryShader << "\n";
-    std::cout << "(Info): Tessellation Shader Support: "
+    std::cout << "  - Tessellation Shader Support: "
               << deviceFeatures.tessellationShader << "\n";
     // You can access more features as needed
   } else {
