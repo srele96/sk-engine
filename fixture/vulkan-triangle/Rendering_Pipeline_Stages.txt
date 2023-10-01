@@ -1,0 +1,224 @@
+Pipeline Creation:
+
+  Create the graphics and/or compute pipelines.
+  Set up the pipeline states, including shader stages, vertex input, etc.
+
+    Shader Stages Setup:
+        Vertex Shader: A simple shader that passes through vertex positions.
+        Fragment Shader: A simple shader that outputs a constant color.
+
+    Pipeline Layout Creation:
+        Create a pipeline layout with no descriptor set layouts or push
+        constants as you don't have any external resources to pass to the
+        shaders.
+
+            Understanding Descriptors and Push Constants:
+              Descriptors: These are used to pass data from your application to your shaders (e.g., textures, buffers).
+              Push Constants: These are another way to pass a small amount of data to your shaders.
+              In your case, since you don’t have any external resources to pass to the shaders, you won't be using descriptors or push constants.
+
+            Create a Pipeline Layout Object:
+                You'll need to create a pipeline layout object. Even though you won't be specifying any descriptors or push constants, a pipeline layout object is still required to create a graphics pipeline.
+
+            Specify No Descriptor Set Layouts:
+                As part of the pipeline layout creation, you would specify that there are no descriptor set layouts to be used.
+
+            Specify No Push Constants:
+                Also, specify that there are no push constants to be used.
+
+            Call the Pipeline Layout Creation Function:
+                With the above specifications, you would call the Vulkan function to create the pipeline layout.
+
+    Vertex Input Configuration:
+        Set up the vertex input to pass vertices to the vertex shader. If your
+        vertex data is hardcoded in the shader, this can be left empty.
+
+            Understand Your Vertex Data:
+                Know what attributes each vertex consists of (e.g., position, color, texture coordinates, etc.) and the format of each attribute (e.g., floating point, vector, etc.).
+
+            Create Vertex Input Attribute Descriptions:
+                Create an array of VkVertexInputAttributeDescription structures, one for each attribute.
+                For each attribute, specify the location (binding), format, and offset within each vertex.
+
+            Create Vertex Input Binding Description:
+                Create a VkVertexInputBindingDescription structure to describe how to read data for each vertex from the buffer.
+                Specify the binding number, the size (stride) of each vertex, and the input rate (per vertex or per instance).
+
+            Populate Vertex Input State Create Info:
+                Fill out a VkPipelineVertexInputStateCreateInfo structure, specifying the arrays of attribute and binding descriptions.
+
+    Input Assembly Configuration:
+        Configure the input assembly to treat vertices as a list of triangles.
+
+            Understanding the Input Assembly Stage:
+                The Input Assembly stage of the pipeline is where the vertices are grouped together to form geometric primitives (e.g., points, lines, or triangles) which will be processed by the subsequent pipeline stages.
+
+            Choosing the Primitive Topology:
+                Decide on the primitive topology that suits your rendering needs. Since you're drawing a triangle, you would typically choose VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST as your primitive topology.
+
+            Create Input Assembly State Create Info:
+                Create a VkPipelineInputAssemblyStateCreateInfo structure to hold the configuration for the Input Assembly stage.
+
+            Specifying the Primitive Topology:
+                Set the topology field of the VkPipelineInputAssemblyStateCreateInfo structure to VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST.
+
+            Handling Primitive Restart:
+                Optionally, set the primitiveRestartEnable field to VK_FALSE to disable primitive restart. (Primitive restart is a feature that allows you to define multiple primitives with a single list of vertices by designating a special index to restart the assembly of primitives.)
+
+    Viewport and Scissor Configuration:
+        Set up a single viewport and scissor rect covering the entire
+        framebuffer.
+
+            Understanding Viewport and Scissor:
+              Viewport: It defines the transformation from the image space to the framebuffer space, determining where the rendering will appear on the screen.
+              Scissor: It defines a rectangular region in the framebuffer to which rendering is constrained. Anything drawn outside this rectangle will be clipped.
+
+            Creating Viewport State Create Info:
+                Create a VkPipelineViewportStateCreateInfo structure to hold the configuration for the viewport and scissor stages.
+
+            Specifying Viewport Dimensions:
+                Create a VkViewport structure, and set its x, y, width, height, minDepth, and maxDepth fields to define the viewport dimensions and depth range.
+
+            Specifying Scissor Rectangle:
+                Create a VkRect2D structure and set its offset and extent fields to define the dimensions and position of the scissor rectangle.
+
+            Assigning Viewport and Scissor to Viewport State Create Info:
+                Set the viewportCount and pViewports fields of VkPipelineViewportStateCreateInfo to the number of viewports (1 in this case) and a pointer to the VkViewport structure.
+                Set the scissorCount and pScissors fields of VkPipelineViewportStateCreateInfo to the number of scissor rectangles (1 in this case) and a pointer to the VkRect2D structure.
+
+    Rasterizer Configuration:
+        Configure the rasterizer to fill triangles and cull backfaces if
+        desired.
+
+            Understanding Rasterizer Configuration:
+                Rasterization is crucial for converting vertex data into pixel data which can then be colored by the fragment shader.
+                Rasterization also determines how the insides and edges of these primitives are filled and whether or not certain faces should be culled (not drawn).
+
+            Creating Rasterization State Create Info:
+                Create a VkPipelineRasterizationStateCreateInfo structure to hold the configuration for the rasterization stage.
+
+            Configuring Polygon Mode:
+                Set the polygonMode field to VK_POLYGON_MODE_FILL to fill the area of the triangles with color.
+                Alternatively, VK_POLYGON_MODE_LINE or VK_POLYGON_MODE_POINT can be used to render wireframes or points respectively.
+
+            Configuring Culling:
+                Optionally set the cullMode field to VK_CULL_MODE_BACK_BIT to cull (not draw) back-facing triangles.
+                This can improve performance as fewer fragments will be generated and processed.
+                Alternatively, VK_CULL_MODE_FRONT_BIT can be used to cull front-facing triangles, or VK_CULL_MODE_NONE to disable culling.
+
+            Configuring Front Face:
+                Set the frontFace field to VK_FRONT_FACE_CLOCKWISE or VK_FRONT_FACE_COUNTER_CLOCKWISE to define which orientation of vertices corresponds to a front-facing triangle.
+
+            Other Rasterization Settings:
+                There are also settings for depth clamping, line width, and depth bias, but these can typically be left at their default values for basic rendering.
+
+    Multisampling Configuration:
+        Disable multisampling if not needed.
+
+            Understanding Multisampling Configuration:
+                Get to know what multisampling is and decide whether your application requires it. As mentioned, it's used to smooth out jagged edges but at a cost of increased computational and memory resources.
+
+            Creating Multisampling State Create Info:
+                Create a VkPipelineMultisampleStateCreateInfo structure to hold the configuration for the multisampling stage.
+
+            Disabling Multisampling:
+                Set the rasterizationSamples field to VK_SAMPLE_COUNT_1_BIT to disable multisampling.
+                This tells Vulkan that you only want one sample per pixel, effectively disabling multisampling.
+
+            Setting Other Multisample Parameters (Optional):
+                Although you’re disabling multisampling, the VkPipelineMultisampleStateCreateInfo structure has other fields that can be set but most of them will be irrelevant if multisampling is disabled. These include fields for setting sample shading, alpha to coverage, alpha to one, and setting a sample mask.
+
+    Depth and Stencil Configuration:
+        Disable depth and stencil testing if not needed.
+
+            Understanding Depth and Stencil Tests:
+                Depth Test: It is a per-pixel test that checks whether a given pixel is in front or behind other pixels already drawn to the frame buffer based on its depth value. Pixels that pass the test replace the existing pixels in the frame buffer.
+                Stencil Test: It's a per-pixel test that uses a stencil buffer to control which pixels should be updated in the frame buffer. It can be used for various effects like shadows, outlines, etc.
+
+            Creating Depth and Stencil State Create Info:
+                Create a VkPipelineDepthStencilStateCreateInfo structure to hold the configuration for the depth and stencil testing stages.
+
+            Disabling Depth Testing:
+                Set the depthTestEnable field to VK_FALSE to disable depth testing.
+                Set the depthWriteEnable field to VK_FALSE to disable writing to the depth buffer.
+
+            Disabling Stencil Testing:
+                Set the stencilTestEnable field to VK_FALSE to disable stencil testing.
+
+            Setting Other Parameters (Optional):
+                The VkPipelineDepthStencilStateCreateInfo structure has other fields that can be set, but they will be irrelevant if depth and stencil testing are disabled.
+
+    Color Blending Configuration:
+        Set up simple alpha blending or disable blending if not needed.
+
+            Understanding Color Blending:
+                Get a grasp of how color blending works. There are several blending operations and factors that can be set to control how the blending is performed.
+
+            Creating Color Blend Attachment State:
+                Create a VkPipelineColorBlendAttachmentState structure for each color attachment that the subpasses in your render pass will use.
+                Set the blendEnable field to VK_TRUE if you want blending to be enabled or VK_FALSE if you want it disabled.
+                If blending is enabled, set the color blend operation (e.g., add), and the color blend factors (e.g., source alpha, one minus source alpha) for both the color and alpha channels.
+
+            Creating Color Blend State Create Info:
+                Create a VkPipelineColorBlendStateCreateInfo structure to hold the color blend configuration for the pipeline.
+                Set the attachmentCount field to the number of VkPipelineColorBlendAttachmentState structures you’ve created.
+                Set the pAttachments field to the array of VkPipelineColorBlendAttachmentState structures.
+
+            Setting Logic Op (Optional):
+                The VkPipelineColorBlendStateCreateInfo structure also has fields for setting a logic op, which is another way to combine source and destination colors, though this is less commonly used than blending.
+
+    Render Pass Association:
+        Associate the pipeline with a render pass that has a compatible color
+        attachment format.
+
+            Create or Obtain a Render Pass:
+                Before associating a pipeline with a render pass, you'll need to have a render pass created or obtained. This render pass should have the desired color, depth, and stencil attachment configurations you plan to use for rendering.
+
+            Specify the Render Pass in the Pipeline Create Info:
+                Within the VkGraphicsPipelineCreateInfo structure, there's a field named renderPass which is used to specify the render pass with which this pipeline will be associated. You'll need to set this field to the handle of your render pass.
+
+            Specify the Subpass Index:
+                Also in the VkGraphicsPipelineCreateInfo structure, there’s a field named subpass. This field specifies the index of the subpass within the render pass where this pipeline will be used. Usually, you would set this to 0 if you only have one subpass.
+
+            Verify Attachment Compatibility:
+                Ensure that the format and layout of the color, depth, and stencil attachments specified in your render pass are compatible with the pipeline configuration. This includes ensuring that the shader outputs and the blending configurations are compatible with the color attachment formats.
+
+    Graphics Pipeline Creation:
+        Create the graphics pipeline using the configurations set up in the
+        previous steps.
+
+            Prepare Graphics Pipeline Create Info:
+                Prepare a VkGraphicsPipelineCreateInfo structure that gathers together all the various pieces of state you’ve configured, including shader stages, vertex input, input assembly, viewport and scissor, rasterization, multisampling, depth and stencil, color blending, and possibly others.
+
+            Specify Shader Stages:
+                In the VkGraphicsPipelineCreateInfo structure, specify the shader stages by assigning the pStages field to point to an array of VkPipelineShaderStageCreateInfo structures.
+
+            Specify Vertex Input:
+                Specify the vertex input by assigning the pVertexInputState field to point to a VkPipelineVertexInputStateCreateInfo structure.
+
+            Specify Input Assembly:
+                Specify the input assembly by assigning the pInputAssemblyState field to point to a VkPipelineInputAssemblyStateCreateInfo structure.
+
+            Specify Viewport and Scissor:
+                Specify the viewport and scissor by assigning the pViewportState field to point to a VkPipelineViewportStateCreateInfo structure.
+
+            Specify Rasterization:
+                Specify the rasterization state by assigning the pRasterizationState field to point to a VkPipelineRasterizationStateCreateInfo structure.
+
+            Specify Multisampling:
+                Specify the multisampling state by assigning the pMultisampleState field to point to a VkPipelineMultisampleStateCreateInfo structure.
+
+            Specify Depth and Stencil:
+                Specify the depth and stencil state by assigning the pDepthStencilState field to point to a VkPipelineDepthStencilStateCreateInfo structure.
+
+            Specify Color Blending:
+                Specify the color blending state by assigning the pColorBlendState field to point to a VkPipelineColorBlendStateCreateInfo structure.
+
+            Specify Pipeline Layout:
+                Specify the pipeline layout by assigning the layout field to your VkPipelineLayout object.
+
+            Specify Render Pass:
+                Specify the render pass by assigning the renderPass field to your VkRenderPass object.
+
+            Call vkCreateGraphicsPipelines:
+                Call vkCreateGraphicsPipelines() function, passing the VkGraphicsPipelineCreateInfo structure along with other necessary arguments to create the graphics pipeline object.

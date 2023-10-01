@@ -686,10 +686,10 @@ int main(int argc, char **argv) {
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  // Pipeline Creation:
-  //
-  //   Create the graphics and/or compute pipelines.
-  //   Set up the pipeline states, including shader stages, vertex input, etc.
+Pipeline Creation:
+
+  Create the graphics and/or compute pipelines.
+  Set up the pipeline states, including shader stages, vertex input, etc.
 
   return 0;
 }
