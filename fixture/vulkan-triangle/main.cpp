@@ -864,6 +864,8 @@ int main(int argc, char **argv) {
   renderPassCreateInfo.attachmentCount = 1;
   renderPassCreateInfo.pAttachments = &colorAttachment;
   renderPassCreateInfo.subpassCount = 1;
+  // Helped me confirm that subpass is required, I guess?
+  // https://renderdoc.org/vulkan-in-30-minutes.html
   renderPassCreateInfo.pSubpasses = &subpassDescription;
 
   //   Create the Render Pass:
