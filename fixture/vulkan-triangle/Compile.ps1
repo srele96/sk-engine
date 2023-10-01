@@ -3,6 +3,19 @@ param (
   [string[]]$files
 )
 
+<#
+.SYNOPSIS
+Compiles a list of GLSL shader files to SPIRV-H format.
+
+.DESCRIPTION
+This function takes in a list of GLSL shader file names and generates a corresponding .spv file for each file relative to its location.
+
+.PARAMETER files
+A list of file names to be compiled to SPIR-V format.
+
+.NOTES
+File compilation is performed using the glslc.exe tool from the Vulkan SDK.
+#>
 function compileFiles {
   param (
     [Parameter(Mandatory = $true)]
