@@ -79,12 +79,13 @@ int main(int argc, char **argv) {
   uint32_t vulkanVersion;
 
   if (VkResult result = vkEnumerateInstanceVersion(&vulkanVersion);
-      result == VK_SUCCESS) {
+      result != VK_SUCCESS) {
+    std::cerr << "Error. Failed to get Vulkan version: "
+              << string_VkResult(result) << "\n";
+  } else {
     std::cout << "Vulkan API version: " << VK_VERSION_MAJOR(vulkanVersion)
               << "." << VK_VERSION_MINOR(vulkanVersion) << "."
               << VK_VERSION_PATCH(vulkanVersion) << "\n";
-  } else {
-    std::cerr << "Failed to get Vulkan version: " << result << "\n";
   }
 
   /*
@@ -661,14 +662,34 @@ int main(int argc, char **argv) {
   }
 
   void *mapVertexData = nullptr;
-  if (VkResult result = vmaMapMemory(allocator, vertexBufferAllocation, &mapVertexData); result != VK_SUCCESS) {
-    std::cerr << "Error. Failed to map memory: " << string_VkResult(result) << "\n";
+  // You call vmaMapMemory with the pointer variable. Vulkan maps the GPU
+  // buffer's memory into your application's address space, and data is now a
+  // pointer to that mapped memory.
+  if (VkResult result =
+          vmaMapMemory(allocator, vertexBufferAllocation, &mapVertexData);
+      result != VK_SUCCESS) {
+    std::cerr << "Error. Failed to map memory: " << string_VkResult(result)
+              << "\n";
   } else {
-    std::cout << "Success."
+    std::cout << "Success. Memory mapped.\n";
   }
+  // You use std::copy to copy the vertex data from vertexData to the GPU buffer
+  // via the data pointer. The data is now in the GPU memory, not in the data
+  // pointer.
   std::copy(std::begin(vertexData), std::end(vertexData),
             static_cast<float *>(mapVertexData));
+  // You call vmaUnmapMemory to unmap the GPU buffer's memory from your
+  // application's address space. The data pointer is now invalid and should not
+  // be used to access the memory.
   vmaUnmapMemory(allocator, vertexBufferAllocation);
+
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  // Pipeline Creation:
+  //
+  //   Create the graphics and/or compute pipelines.
+  //   Set up the pipeline states, including shader stages, vertex input, etc.
 
   return 0;
 }
