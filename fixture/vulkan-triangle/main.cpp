@@ -443,12 +443,12 @@ int main(int argc, char **argv) {
   vkGetPhysicalDeviceSurfaceFormatsKHR(selectedDevice, surface, &formatCount,
                                        nullptr);
   if (formatCount != 0) {
-    std::cout << "Resizing formats to: " << formatCount << "\n";
+    std::cout << "(Info): Resizing formats to: " << formatCount << "\n";
     formats.resize(formatCount);
     vkGetPhysicalDeviceSurfaceFormatsKHR(selectedDevice, surface, &formatCount,
                                          formats.data());
   } else {
-    std::cerr << "Skipping format resizing\n";
+    std::cerr << "Error. Skipping format resizing\n";
   }
 
   uint32_t presentModeCount;
@@ -533,6 +533,7 @@ int main(int argc, char **argv) {
   std::filesystem::path executablePath(argv[0]);
   std::filesystem::path executableDirPath = executablePath.parent_path();
 
+  VkShaderModule shaderVertexModule;
   try {
     std::string vertexShaderPath =
         (executableDirPath / "shader.vert.spv").string();
@@ -540,14 +541,14 @@ int main(int argc, char **argv) {
     std::cout << "(Info): Loading: " << vertexShaderPath << "\n";
     std::vector<uint32_t> shaderVertex = loadSPIRV(vertexShaderPath);
 
-    VkShaderModule shaderVertexModule =
-        createShaderModule(logicalDevice, shaderVertex);
+    shaderVertexModule = createShaderModule(logicalDevice, shaderVertex);
 
     std::cout << "Success. Created vertex shader.\n";
   } catch (const std::exception &e) {
     std::cerr << e.what() << "\n";
   }
 
+  VkShaderModule shaderFragmentModule;
   try {
     std::string fragmentShaderPath =
         (executableDirPath / "shader.frag.spv").string();
@@ -555,8 +556,7 @@ int main(int argc, char **argv) {
     std::cout << "(Info): Loading: " << fragmentShaderPath << "\n";
     std::vector<uint32_t> fragmentShader = loadSPIRV(fragmentShaderPath);
 
-    VkShaderModule shaderFragmentModule =
-        createShaderModule(logicalDevice, fragmentShader);
+    shaderFragmentModule = createShaderModule(logicalDevice, fragmentShader);
 
     std::cout << "Success. Created fragment shader\n";
   } catch (const std::exception &e) {
@@ -638,6 +638,229 @@ int main(int argc, char **argv) {
   //
   //   Create the graphics and/or compute pipelines.
   //   Set up the pipeline states, including shader stages, vertex input, etc.
+
+  // Shader Stages Setup:
+  //   Vertex Shader: A simple shader that passes through vertex positions.
+  //   Fragment Shader: A simple shader that outputs a constant color.
+
+  std::vector<VkPipelineShaderStageCreateInfo> shaderStages(2);
+
+  shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+  shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
+  shaderStages[0].module = shaderVertexModule;
+  shaderStages[0].pName = "main";
+
+  shaderStages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+  shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+  shaderStages[1].module = shaderFragmentModule;
+  shaderStages[1].pName = "main";
+
+  // Pipeline Layout Creation:
+  //   Create a pipeline layout with no descriptor set layouts or push
+  //   constants as you don't have any external resources to pass to the
+  //   shaders.
+
+  VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{};
+  pipelineLayoutCreateInfo.sType =
+      VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+  pipelineLayoutCreateInfo.setLayoutCount = 0;
+  pipelineLayoutCreateInfo.pSetLayouts = nullptr;
+  pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
+  pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
+
+  VkPipelineLayout pipelineLayout;
+  if (VkResult result = vkCreatePipelineLayout(
+          logicalDevice, &pipelineLayoutCreateInfo, nullptr, &pipelineLayout);
+      result != VK_SUCCESS) {
+    std::cerr << "Error. Failed to create Pipeline Layout: "
+              << string_VkResult(result) << "\n";
+  } else {
+    std::cout << "Success. Created Pipeline Layout.\n";
+  }
+
+  // Vertex Input Configuration:
+  //     Set up the vertex input to pass vertices to the vertex shader. If your
+  //     vertex data is hardcoded in the shader, this can be left empty.
+
+  std::vector<VkVertexInputAttributeDescription>
+      vertexInputAttributeDescriptions(1);
+  vertexInputAttributeDescriptions[0].binding = 0;
+  vertexInputAttributeDescriptions[0].location = 0;
+  vertexInputAttributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+  vertexInputAttributeDescriptions[0].offset = 0;
+
+  VkVertexInputBindingDescription vertexInputBindingDescription{};
+  vertexInputBindingDescription.binding = 0;
+  vertexInputBindingDescription.stride = sizeof(float) * 3;
+  vertexInputBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+  VkPipelineVertexInputStateCreateInfo pipelineVertexInputStateCreateInfo{};
+  pipelineVertexInputStateCreateInfo.sType =
+      VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+  pipelineVertexInputStateCreateInfo.vertexBindingDescriptionCount = 1;
+  pipelineVertexInputStateCreateInfo.pVertexBindingDescriptions =
+      &vertexInputBindingDescription;
+  pipelineVertexInputStateCreateInfo.vertexAttributeDescriptionCount =
+      static_cast<uint32_t>(vertexInputAttributeDescriptions.size());
+  pipelineVertexInputStateCreateInfo.pVertexAttributeDescriptions =
+      vertexInputAttributeDescriptions.data();
+
+  // Input Assembly Configuration:
+  //     Configure the input assembly to treat vertices as a list of triangles.
+
+  VkPipelineInputAssemblyStateCreateInfo pipelineInputAssemblyStateCreateInfo{};
+  pipelineInputAssemblyStateCreateInfo.sType =
+      VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+  pipelineInputAssemblyStateCreateInfo.topology =
+      VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+  pipelineInputAssemblyStateCreateInfo.primitiveRestartEnable = VK_FALSE;
+
+  // Viewport and Scissor Configuration:
+  //   Set up a single viewport and scissor rect covering the entire
+  //   framebuffer.
+
+  int framebufferWidth, framebufferHeight;
+  glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
+
+  VkViewport viewport{};
+  viewport.x = 0.0f;
+  viewport.y = 0.0f;
+  viewport.width = static_cast<float>(framebufferWidth);
+  viewport.height = static_cast<float>(framebufferHeight);
+  viewport.minDepth = 0.0f;
+  viewport.maxDepth = 1.0f;
+
+  VkRect2D scissor{};
+  scissor.offset = {0, 0};
+  scissor.extent = {static_cast<uint32_t>(framebufferWidth),
+                    static_cast<uint32_t>(framebufferHeight)};
+
+  VkPipelineViewportStateCreateInfo pipelineViewportStateCreateInfo{};
+  pipelineViewportStateCreateInfo.sType =
+      VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+  pipelineViewportStateCreateInfo.viewportCount = 1;
+  pipelineViewportStateCreateInfo.pViewports = &viewport;
+  pipelineViewportStateCreateInfo.scissorCount = 1;
+  pipelineViewportStateCreateInfo.pScissors = &scissor;
+
+  // Rasterizer Configuration:
+  //   Configure the rasterizer to fill triangles and cull backfaces if
+  //   desired.
+
+  VkPipelineRasterizationStateCreateInfo pipelineRasterizationStateCreateInfo{};
+  pipelineRasterizationStateCreateInfo.sType =
+      VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+  pipelineRasterizationStateCreateInfo.depthClampEnable = VK_FALSE;
+  pipelineRasterizationStateCreateInfo.rasterizerDiscardEnable = VK_FALSE;
+  pipelineRasterizationStateCreateInfo.polygonMode = VK_POLYGON_MODE_FILL;
+  pipelineRasterizationStateCreateInfo.lineWidth = 1.0f;
+  pipelineRasterizationStateCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT;
+  pipelineRasterizationStateCreateInfo.frontFace =
+      VK_FRONT_FACE_COUNTER_CLOCKWISE;
+  pipelineRasterizationStateCreateInfo.depthBiasEnable = VK_FALSE;
+
+  // Multisampling Configuration:
+  //   Disable multisampling if not needed.
+
+  VkPipelineMultisampleStateCreateInfo pipelineMultisampleStateCreateInfo{};
+  pipelineMultisampleStateCreateInfo.sType =
+      VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+  pipelineMultisampleStateCreateInfo.rasterizationSamples =
+      VK_SAMPLE_COUNT_1_BIT;
+  pipelineMultisampleStateCreateInfo.sampleShadingEnable = VK_FALSE;
+  pipelineMultisampleStateCreateInfo.minSampleShading = 1.0f;
+  pipelineMultisampleStateCreateInfo.pSampleMask = nullptr;
+  pipelineMultisampleStateCreateInfo.alphaToCoverageEnable = VK_FALSE;
+  pipelineMultisampleStateCreateInfo.alphaToOneEnable = VK_FALSE;
+
+  // Depth and Stencil Configuration:
+  //   Disable depth and stencil testing if not needed.
+
+  VkPipelineDepthStencilStateCreateInfo pipelineDepthStencilStateCreateInfo{};
+  pipelineDepthStencilStateCreateInfo.sType =
+      VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+  pipelineDepthStencilStateCreateInfo.depthTestEnable = VK_FALSE;
+  pipelineDepthStencilStateCreateInfo.depthWriteEnable = VK_FALSE;
+  pipelineDepthStencilStateCreateInfo.stencilTestEnable = VK_FALSE;
+
+  // Color Blending Configuration:
+  //   Set up simple alpha blending or disable blending if not needed.
+
+  VkPipelineColorBlendAttachmentState pipelineColorBlendAttachmentState{};
+  pipelineColorBlendAttachmentState.blendEnable = VK_FALSE;
+  pipelineColorBlendAttachmentState.colorWriteMask =
+      VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+      VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+
+  VkPipelineColorBlendStateCreateInfo pipelineColorBlendStateCreateInfo{};
+  pipelineColorBlendStateCreateInfo.sType =
+      VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+  pipelineColorBlendStateCreateInfo.logicOpEnable = VK_FALSE;
+  pipelineColorBlendStateCreateInfo.attachmentCount = 1;
+  pipelineColorBlendStateCreateInfo.pAttachments =
+      &pipelineColorBlendAttachmentState;
+
+  // Render Pass Association:
+  //     Associate the pipeline with a render pass that has a compatible color
+  //     attachment format.
+
+  // Create or Obtain a Render Pass:
+  //   Before associating a pipeline with a render pass, you'll need to have a
+  //   render pass created or obtained. This render pass should have the desired
+  //   color, depth, and stencil attachment configurations you plan to use for
+  //   rendering.
+
+  // Creating or obtaining a render pass in Vulkan is a multi-step process that
+  // involves understanding the rendering operations you wish to perform and how
+  // they are to be organized within a render pass. Here's a breakdown of the
+  // conceptual tasks involved:
+
+  //   Understand Your Rendering Requirements:
+  //       Determine the color, depth, and stencil attachments you will need
+  //       based on what you're rendering. Decide on the format of these
+  //       attachments
+
+  //   Determine Attachment Descriptions:
+  //       Create a VkAttachmentDescription structure for each attachment.
+  //       Specify the format, usage, and other properties of each attachment.
+
+  //   Determine Subpass Descriptions:
+  //       Create a VkSubpassDescription structure.
+  //       Specify the attachments that will be used in this subpass and how
+  //       they will be used (e.g., as color attachments, depth-stencil
+  //       attachments, etc.).
+
+  //   Determine Subpass Dependencies:
+  //       If you have multiple subpasses, define the dependencies between them
+  //       using VkSubpassDependency structures. Specify when each subpass
+  //       should execute relative to others.
+
+  //   Create Render Pass Create Info:
+  //       Create a VkRenderPassCreateInfo structure.
+  //       Populate it with the attachment descriptions, subpass descriptions,
+  //       and subpass dependencies.
+
+  //   Create the Render Pass:
+  //       Call vkCreateRenderPass, passing in the VkRenderPassCreateInfo
+  //       structure, to create the render pass.
+
+  //   Handle the Render Pass:
+  //       Store the handle to the render pass (VkRenderPass) returned by
+  //       vkCreateRenderPass for later use.
+
+  // Not sure about this part... I'm supposed to assemble renderpass however i'm
+  // boggled down with intricacies of its settings. Maybe i should not be and
+  // should simply get the code to setup render pass and debug as issues arise.
+
+  VkAttachmentDescription colorAttachment{};
+  colorAttachment.format = surfaceFormat.format; // Use swapchain image format
+  colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+  colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+  colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+  colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+  colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
   return 0;
 }
