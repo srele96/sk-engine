@@ -3,6 +3,8 @@
 #define GLFW_INCLUDE_VULKAN
 #include "GLFW/glfw3.h"
 #include "vulkan/vk_enum_string_helper.h"
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <vector>
 
@@ -24,6 +26,49 @@ debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
   // The application should always return VK_FALSE. The VK_TRUE value is
   // reserved for use in layer development.
   return VK_FALSE;
+}
+
+std::vector<uint32_t> loadSPIRV(const std::string &filename) {
+  std::ifstream file(filename, std::ios::binary);
+  if (!file.is_open()) {
+    throw std::runtime_error("Error. Failed to open SPIR-V file: " + filename);
+  }
+
+  file.seekg(0, std::ios::end);
+  std::streampos size = file.tellg();
+
+  if (size % 4 != 0) {
+    throw std::runtime_error("Error. SPIR-V file size is not a multiple of 4");
+  }
+
+  file.seekg(0, std::ios::beg);
+
+  std::vector<uint32_t> buffer(size / 4);
+  if (!file.read(reinterpret_cast<char *>(buffer.data()), size)) {
+    throw std::runtime_error("Error. Failed to read SPIR-V file");
+  }
+
+  return buffer;
+}
+
+VkShaderModule createShaderModule(VkDevice device,
+                                  const std::vector<uint32_t> &code) {
+  VkShaderModuleCreateInfo shaderModuleCreateInfo{};
+  shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+  // should receive the size in bytes
+  shaderModuleCreateInfo.codeSize = code.size() * sizeof(uint32_t);
+  shaderModuleCreateInfo.pCode = code.data();
+
+  VkShaderModule shaderModule;
+  if (VkResult result = vkCreateShaderModule(device, &shaderModuleCreateInfo,
+                                             nullptr, &shaderModule);
+      result != VK_SUCCESS) {
+    throw std::runtime_error(
+        std::string("Error. Failed to create shader module: ") +
+        string_VkResult(result));
+  }
+
+  return shaderModule;
 }
 
 int main(int argc, char **argv) {
@@ -492,8 +537,6 @@ int main(int argc, char **argv) {
   swapchainCreateInfo.clipped = VK_TRUE;
   swapchainCreateInfo.oldSwapchain = VK_NULL_HANDLE;
 
-  std::cout << "Created swapchainCreateInfo\n";
-
   VkSwapchainKHR swapchain;
   if (VkResult result = vkCreateSwapchainKHR(
           logicalDevice, &swapchainCreateInfo, nullptr, &swapchain);
@@ -527,6 +570,43 @@ int main(int argc, char **argv) {
   //   a. Define the data for your triangle's vertices, including positions and
   //   colors. b. Create a Vulkan buffer to hold this data. c. Allocate memory
   //   for this buffer, and copy your vertex data into this buffer.
+
+  // load shaders using relative path from the executable location
+  std::filesystem::path executablePath(argv[0]);
+  std::filesystem::path executableDirPath = executablePath.parent_path();
+
+  try {
+    std::string vertexShaderPath =
+        (executableDirPath / "shader.vert.spv").string();
+
+    std::cout << "(Info): Loading: " << vertexShaderPath << "\n";
+    // the problem is that relative paths use location from which the process
+    // was executed while i expected the app to use the path from the executable
+    // location
+    std::vector<uint32_t> shaderVertex = loadSPIRV(vertexShaderPath);
+
+    VkShaderModule shaderVertexModule =
+        createShaderModule(logicalDevice, shaderVertex);
+
+    std::cout << "Success. Created vertex shader.\n";
+  } catch (const std::exception &e) {
+    std::cerr << e.what() << "\n";
+  }
+
+  try {
+    std::string fragmentShaderPath =
+        (executableDirPath / "shader.frag.spv").string();
+
+    std::cout << "(Info): Loading: " << fragmentShaderPath << "\n";
+    std::vector<uint32_t> fragmentShader = loadSPIRV(fragmentShaderPath);
+
+    VkShaderModule shaderFragmentModule =
+        createShaderModule(logicalDevice, fragmentShader);
+
+    std::cout << "Success. Created fragment shader\n";
+  } catch (const std::exception &e) {
+    std::cerr << e.what();
+  }
 
   return 0;
 }
