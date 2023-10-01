@@ -291,14 +291,11 @@ int main(int argc, char **argv) {
     vkGetPhysicalDeviceFeatures(selectedDevice, &deviceFeatures);
 
     std::cout << "(Info): Selected Device Properties:\n";
-    std::cout << "  - Device Name: " << deviceProperties.deviceName
+    std::cout << "  - Device Name: " << deviceProperties.deviceName << "\n";
+    std::cout << "  - Device Type: " << deviceProperties.deviceType << "\n";
+    std::cout << "  - API Version: " << deviceProperties.apiVersion << "\n";
+    std::cout << "  - Driver Version: " << deviceProperties.driverVersion
               << "\n";
-    std::cout << "  - Device Type: " << deviceProperties.deviceType
-              << "\n";
-    std::cout << "  - API Version: " << deviceProperties.apiVersion
-              << "\n";
-    std::cout << "  - Driver Version: "
-              << deviceProperties.driverVersion << "\n";
     // You can access more properties as needed
 
     std::cout << "(Info): Selected Device Features:\n";
