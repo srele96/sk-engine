@@ -571,7 +571,8 @@ int main(int argc, char **argv) {
   //   colors. b. Create a Vulkan buffer to hold this data. c. Allocate memory
   //   for this buffer, and copy your vertex data into this buffer.
 
-  // load shaders using relative path from the executable location
+  // load shaders using relative path from the executable location because
+  // that's the way the build system sets up the shader loading
   std::filesystem::path executablePath(argv[0]);
   std::filesystem::path executableDirPath = executablePath.parent_path();
 
