@@ -613,6 +613,9 @@ int main(int argc, char **argv) {
     std::cerr << e.what();
   }
 
+  // Setup vulkan memory allocator before buffer creation because it is easy to
+  // mess up vulkan memory allocation according to their documentation
+  // https://vkguide.dev/docs/introduction/project_libs/
   VmaAllocatorCreateInfo vmaAllocatorCreateInfo{};
   vmaAllocatorCreateInfo.vulkanApiVersion = vulkanVersion;
   vmaAllocatorCreateInfo.physicalDevice = selectedDevice;
