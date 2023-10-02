@@ -4,6 +4,7 @@
 #include "GLFW/glfw3.h"
 // Fixes: undefined reference to `vmaCreateAllocator'
 #define VMA_IMPLEMENTATION
+#include "explore.h"
 #include "vk_mem_alloc.h"
 #include "vulkan/vk_enum_string_helper.h"
 #include <algorithm>
@@ -76,6 +77,8 @@ VkShaderModule createShaderModule(VkDevice device,
 }
 
 int main(int argc, char **argv) {
+  explore::vulkan_api();
+
   uint32_t vulkanVersion;
 
   if (VkResult result = vkEnumerateInstanceVersion(&vulkanVersion);

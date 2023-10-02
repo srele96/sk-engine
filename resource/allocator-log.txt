@@ -1,0 +1,72 @@
+~~~~~~~~~~~~~~~~~~~~~~~~
+EXPLORE_VULKAN_API_BEGIN
+~~~~~~~~~~~~~~~~~~~~~~~~
+// ... fifty five thousand lines of logs of ...
+(pfnAllocationCreate):
+  size = 10
+  alignment = 8
+  pMemory = not null
+  sizeof(pMemory) = 8
+(pfnFreeCreate):
+  pMemory = not null
+(pfnFree):
+  UserData->i = 20
+  pMemory = not null
+~~~~~~~~~~~~~~~~~~~~~~~~
+EXPLORE_VULKAN_API_END
+~~~~~~~~~~~~~~~~~~~~~~~~
+Vulkan API version: 1.3.241
+(Info): InstanceLayerProperties:
+  - VK_LAYER_NV_optimus
+  - VK_LAYER_OBS_HOOK
+  - VK_LAYER_VALVE_steam_overlay
+  - VK_LAYER_VALVE_steam_fossilize
+  - VK_LAYER_LUNARG_api_dump
+  - VK_LAYER_LUNARG_gfxreconstruct
+  - VK_LAYER_KHRONOS_synchronization2
+  - VK_LAYER_KHRONOS_validation
+  - VK_LAYER_LUNARG_monitor
+  - VK_LAYER_LUNARG_screenshot
+  - VK_LAYER_KHRONOS_profiles
+  - VK_LAYER_KHRONOS_shader_object
+(Info): glfwExtensionCount is: 2
+(Info): glfwExtensions are:
+  - VK_KHR_surface
+  - VK_KHR_win32_surface
+(Info): Instance extensions:
+  - VK_KHR_surface
+  - VK_KHR_win32_surface
+  - VK_EXT_debug_utils
+Success. Created vulkan instance
+Success. Loaded vkCreateDebugUtilsMessengerEXT
+Success. Created CreateDebugUtilsMessengerEXT
+Success. Device count is: 1
+(Info): Found suitable GPU device with graphics queue family
+(Info): Selected Device Properties:
+  - Device Name: NVIDIA GeForce RTX 3050
+  - Device Type: 2
+  - API Version: 4206834
+  - Driver Version: 2252554240
+(Info): Selected Device Features:
+  - Geometry Shader Support: 1
+  - Tessellation Shader Support: 1
+(Info): Device Extensions:
+  - (info): Found extension on device
+    - VK_KHR_swapchain
+Success. Physical device is found, graphicsQueueFamilyIndex is hopefully set correctly.
+Success. Created logical device.
+Success. Created GLFW window
+Success. Created vulkan surface succesfully
+(Info): Resizing formats to: 3
+Resizing presentModeCount to: 4
+Success. Vulkan Swapchain successfully
+(Info): Loading: C:\Users\Srecko\Documents\MyProjects\Private\container-sk-experiments\sk-engine\build\fixture\vulkan-triangle\shader.vert.spv
+Success. Created vertex shader.
+(Info): Loading: C:\Users\Srecko\Documents\MyProjects\Private\container-sk-experiments\sk-engine\build\fixture\vulkan-triangle\shader.frag.spv
+Success. Created fragment shader
+Success. Created Vulkan Memory Allocator.
+Success. Created vertex buffer.
+Success. Memory mapped.
+Success. Created Pipeline Layout.
+Success. Created render pass.
+Success. Created graphics pipeline.

@@ -2,6 +2,8 @@ add_executable(
   vulkan-triangle
 
   ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/explore.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/explore.cpp
 )
 
 # Avoid using glob to find files
