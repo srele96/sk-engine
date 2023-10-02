@@ -1,0 +1,405 @@
+list all vkCreate functions from vulkan
+
+---------------------------------------------
+
+ChatGPT
+
+Vulkan is a low-overhead, cross-platform 3D graphics and computing API. It provides various functions to create objects, and some of them start with vkCreate. Here is a list of vkCreate functions from Vulkan:
+
+    vkCreateInstance
+    vkCreateDevice
+    vkCreateBuffer
+    vkCreateImage
+    vkCreateShaderModule
+    vkCreatePipelineLayout
+    vkCreateGraphicsPipelines
+    vkCreateComputePipelines
+    vkCreateSampler
+    vkCreateDescriptorSetLayout
+    vkCreateDescriptorPool
+    vkCreateFramebuffer
+    vkCreateRenderPass
+    vkCreateCommandPool
+    vkCreateQueryPool
+    vkCreatePipelineCache
+    vkCreateSemaphore
+    vkCreateEvent
+    vkCreateFence
+
+These are just some of the core vkCreate functions and there may be more, especially when considering extensions to the Vulkan API. Each function is used to create a specific type of object in Vulkan and has its own set of parameters and requirements.
+
+---------------------------------------------
+
+tell me more about vulkan instance
+
+---------------------------------------------
+
+ChatGPT
+
+A Vulkan instance is essentially an object that holds connections between the application and the Vulkan library, and is typically the first object you create when working with Vulkan. Creating an instance in Vulkan initializes the Vulkan library and allows the application to use Vulkan functionalities.
+
+Here's a breakdown of its primary uses and components:
+
+    Initialization:
+        The Vulkan instance is responsible for initializing the Vulkan system and establishing communication between your application and the Vulkan runtime.
+
+    Extensions and Layers:
+        When creating a Vulkan instance, you can specify extensions and layers that you want to use. Extensions provide additional functionality beyond the core Vulkan API, while layers are often used for debugging and validation.
+
+    Physical Device Enumeration:
+        Once the instance is created, you can use it to enumerate the available physical devices (i.e., GPUs) on the system.
+
+    Validation Layers:
+        Validation layers are optional components that help to catch incorrect usage of the Vulkan API. They can be enabled when creating a Vulkan instance, and are incredibly helpful for debugging.
+
+Here is an example snippet of code in C to illustrate how a Vulkan instance might be created:
+
+c
+
+VkInstanceCreateInfo createInfo = {};
+createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+createInfo.pApplicationInfo = &appInfo;
+
+VkInstance instance;
+VkResult result = vkCreateInstance(&createInfo, NULL, &instance);
+
+if (result != VK_SUCCESS) {
+    fprintf(stderr, "failed to create instance!\n");
+    exit(EXIT_FAILURE);
+}
+
+In this code:
+
+    A VkInstanceCreateInfo structure is filled out with information about the instance to be created.
+    vkCreateInstance is called with a pointer to this structure, a pointer to allocator callbacks (which can be NULL), and a pointer to a VkInstance handle which will be filled out.
+    The result is checked to see if the instance was created successfully.
+
+The Vulkan instance is fundamental to Vulkan application development, serving as the gateway to the rest of the Vulkan API.
+
+---------------------------------------------
+
+what is minimal call order for these create functions to create rendering pipeline for triangle
+
+---------------------------------------------
+
+ChatGPT
+
+Creating a rendering pipeline to draw a triangle in Vulkan involves several steps. Here is a minimal sequence of Vulkan API calls you would typically need to make, in order, to set up a rendering pipeline:
+
+    Initialize Vulkan:
+        vkCreateInstance to create a Vulkan instance.
+
+    Enumerate Physical Devices and Queue Families:
+        vkEnumeratePhysicalDevices to get a list of physical devices.
+
+    Create a Logical Device:
+        vkCreateDevice to create a logical device.
+
+    Create a Swap Chain:
+        vkCreateSwapchainKHR to create a swap chain.
+
+    Create Image Views:
+        For each image in the swap chain, create an image view.
+
+    Create a Render Pass:
+        vkCreateRenderPass to create a render pass.
+
+    Create a Shader Module:
+        vkCreateShaderModule to create shader modules for the vertex and fragment shaders.
+
+    Create a Pipeline Layout:
+        vkCreatePipelineLayout to create a pipeline layout.
+
+    Create the Graphics Pipeline:
+        vkCreateGraphicsPipelines to create the graphics pipeline.
+
+    Create a Framebuffer:
+        vkCreateFramebuffer to create a frame buffer for each image view.
+
+    Create a Command Pool:
+        vkCreateCommandPool to create a command pool.
+
+    Create Command Buffers:
+        Allocate and record command buffers.
+
+    Create Semaphores and/or Fences (optional, for synchronization):
+        vkCreateSemaphore and/or vkCreateFence to create synchronization primitives.
+
+Each of these steps requires the appropriate Vulkan structures to be filled out, and in many cases, previous steps will generate handles or other data that need to be passed to subsequent steps. This sequence provides a broad outline of the process, and the specifics can vary based on your exact needs and the capabilities of the hardware you're running on.
+
+---------------------------------------------
+
+is vulkan instance tge only way to enable vulkan layers? what else can i do over vulkan instance?
+
+---------------------------------------------
+
+ChatGPT
+
+In Vulkan, the instance is indeed the primary means by which layers, including validation layers, are enabled. When you create a Vulkan instance using vkCreateInstance, you specify the layers you want to enable as part of the VkInstanceCreateInfo structure. Here's a brief look into this and other functionalities:
+
+    Enabling Vulkan Layers:
+        Layers can be enabled by populating the ppEnabledLayerNames and enabledLayerCount fields of the VkInstanceCreateInfo structure when calling vkCreateInstance.
+
+    Enabling Extensions:
+        Similarly, you can enable extensions by populating the ppEnabledExtensionNames and enabledExtensionCount fields of the VkInstanceCreateInfo structure.
+
+    Debugging and Validation:
+        By enabling validation layers, you can receive feedback about incorrect or non-optimal usage of the Vulkan API, which is extremely useful for debugging.
+
+    Enumerating Physical Devices:
+        Once you have a Vulkan instance, you can enumerate the physical devices (i.e., GPUs) available on the system using vkEnumeratePhysicalDevices.
+
+    Querying for Extension and Layer Support:
+        You can query for the support of specific extensions and layers using vkEnumerateInstanceExtensionProperties and vkEnumerateInstanceLayerProperties respectively.
+
+    Getting Proc Addresses:
+        Vulkan instance can be used to retrieve the address of extension functions using vkGetInstanceProcAddr.
+
+    Creating Logical Devices:
+        After enumerating physical devices, you'll create a logical device using vkCreateDevice. Although the Vulkan instance itself isn't directly involved in creating logical devices, you can't create a logical device without first creating a Vulkan instance.
+
+    Setting up Debug Callbacks:
+        If debugging extensions are enabled, you can set up debug callbacks to receive notifications about validation layer messages, errors, and other events.
+
+    Surface Creation (for rendering to a window):
+        If the necessary extensions are enabled, you can create a surface for rendering to a window using functions like vkCreateWin32SurfaceKHR or vkCreateXlibSurfaceKHR depending on the platform.
+
+These functionalities enable a Vulkan application to initialize and configure the Vulkan environment, query the hardware capabilities, enable additional debugging and validation features, and set up the basic resources required for rendering.
+
+---------------------------------------------
+
+why do i have to enumerate physical devices afyer instance creation and can i enumerate before i create instance?
+
+---------------------------------------------
+
+ChatGPT
+
+Enumerating physical devices is an essential step in the Vulkan initialization process, as it allows your application to query the graphics and compute capabilities of the hardware present on the system. Here are the reasons and explanations regarding your queries:
+
+    Why Enumerate After Instance Creation:
+        Initialization: The Vulkan instance initializes the Vulkan library and establishes a connection between your application and the Vulkan runtime. Until this connection is established, you cannot interact with Vulkan or query for hardware capabilities.
+        Extension and Layer Support: When creating a Vulkan instance, you may enable specific extensions and layers. These extensions and layers can affect the results of physical device enumeration, such as exposing additional features or properties of the physical devices.
+
+    Enumerating Before Instance Creation:
+        Not Possible: It's not possible to enumerate physical devices before creating a Vulkan instance because the Vulkan system has not been initialized yet. There's no context to perform such an enumeration until an instance has been created.
+        No Vulkan Context: Vulkan commands need a context to run, and this context is provided by the Vulkan instance. Without a Vulkan instance, there's no context in which to execute a command like vkEnumeratePhysicalDevices.
+
+In summary, creating a Vulkan instance is a prerequisite for enumerating physical devices, and other Vulkan operations, as it initializes the Vulkan system and provides the necessary context for these operations.
+
+---------------------------------------------
+
+hmmm, why do we query physical devices? what are physical devices?
+
+---------------------------------------------
+
+
+ChatGPT
+
+Physical devices in the context of Vulkan refer to the graphics cards (or GPUs) and other compute-capable hardware available on the system. When developing a Vulkan application, querying the physical devices is crucial for several reasons:
+
+    Hardware Capabilities:
+        Different physical devices have different capabilities and features. By querying physical devices, you can learn about the supported features, memory types, queue families, and other crucial hardware specifications.
+        For example, not every GPU supports every feature or extension in Vulkan. By querying the physical devices, you can determine what features are available to you.
+
+    Selection of Suitable Device:
+        In systems with more than one physical device, you might want to choose a specific device based on its capabilities or other criteria suitable for your application. For instance, a dedicated GPU might be preferable over an integrated GPU for graphics-intensive applications.
+
+    Resource Allocation:
+        Information obtained from physical device queries helps in making decisions regarding resource allocation. Knowing the memory types and limits is essential for creating buffers and images optimally.
+
+    Queue Families:
+        Each physical device can have different queue families which are crucial for command submission. Knowing the queue families and their capabilities is necessary for creating logical devices and command queues.
+
+    Format Support:
+        By querying physical devices, you can determine the supported formats for images and buffers, which is crucial for rendering and computation tasks.
+
+    Performance Information:
+        You might obtain performance-related information from physical device queries, which could be used to optimize your application for different hardware.
+
+    Creating Logical Devices:
+        Once a physical device is selected, a logical device is created from it. The logical device is what you interact with to submit commands and manipulate resources.
+
+By querying and understanding the capabilities of the physical devices on the system, you can ensure your Vulkan application is well-tailored to the hardware it's running on, making efficient use of the available resources.
+what does KHR in createSwapchainKHR mean?
+ChatGPT
+
+The "KHR" in vkCreateSwapchainKHR stands for Khronos Group, which is the consortium that oversees the development of Vulkan, OpenGL, and other open standards. In Vulkan, the suffix "KHR" is often used to denote extensions that are ratified by the Khronos Group and are considered standard extensions.
+
+Extensions in Vulkan allow for additional functionality beyond the core Vulkan specification. The naming convention helps to identify the source or the overseeing body of the extension. In this case, the vkCreateSwapchainKHR function is part of the VK_KHR_swapchain extension, which is a standard extension provided by the Khronos Group to handle swap chains in Vulkan.
+
+This naming convention helps developers to quickly identify the nature and potentially the quality or compatibility level of various extensions, making it easier to work in a modular and extensible ecosystem like Vulkan.
+
+---------------------------------------------
+
+hm, one thing i could do, is just declare the order of these calls, then fill up settings between, that would give me a sense of direction
+
+---------------------------------------------
+
+ChatGPT
+
+Absolutely! Laying out the order of function calls first can provide a clear framework or skeleton for your Vulkan setup code. It can help to delineate the steps involved, and from there, you can iteratively fill in the details, such as configuring the settings/parameters for each function call. This can make the process of setting up Vulkan more manageable, especially given the complexity and the numerous settings and configurations Vulkan entails.
+
+Here's a simplified example based on the steps to create a rendering pipeline you inquired about earlier:
+
+    vkCreateInstance (Create Vulkan instance)
+    vkEnumeratePhysicalDevices (Enumerate physical devices)
+    vkCreateDevice (Create logical device)
+    vkCreateSwapchainKHR (Create swap chain)
+    vkCreateRenderPass (Create render pass)
+    vkCreateShaderModule (Create shader modules)
+    vkCreatePipelineLayout (Create pipeline layout)
+    vkCreateGraphicsPipelines (Create graphics pipeline)
+    vkCreateFramebuffer (Create frame buffers)
+    vkCreateCommandPool (Create command pool)
+    vkCreateCommandBuffers (Allocate and record command buffers)
+    vkCreateSemaphore or vkCreateFence (Create synchronization primitives)
+
+With the above order laid out, you can then go step by step, filling in the necessary data structures and parameters for each function call, ensuring that each step is correctly configured before moving on to the next. This approach can indeed provide a sense of direction and help organize the setup process in a logical and systematic manner.
+
+---------------------------------------------
+
+
+did linus torvalds use any libraries when creating first ever version of operating system?
+
+---------------------------------------------
+
+ChatGPT
+
+Linus Torvalds initially created Linux as a personal project while he was a student at the University of Helsinki. The first version, released in 1991, was relatively basic. Linus didn't use any external libraries while creating the initial version of Linux. Instead, he wrote it from scratch, albeit with inspiration from MINIX, a minimal Unix-like operating system used for educational purposes.
+
+However, the Linux kernel was designed to be compatible with Unix system call conventions and other features, which facilitated its interaction with software components (such as libraries and utilities) developed for Unix-like operating systems. Over time, as the Linux project grew and attracted contributions from many other developers, a wide variety of libraries and other software components were integrated with or ported to the Linux platform, forming the rich ecosystem that surrounds Linux today.
+
+---------------------------------------------
+
+so once i go through physical devices, what am i looking for and why?
+
+---------------------------------------------
+
+ChatGPT
+
+When you enumerate and inspect the physical devices on a system during Vulkan initialization, you're looking to understand the hardware capabilities available to your application. Here's a breakdown of what you might look for and why:
+
+    Device Properties and Features:
+        Each physical device has a set of properties and features that can be queried using vkGetPhysicalDeviceProperties and vkGetPhysicalDeviceFeatures respectively.
+        These include information like the device name, type (e.g., integrated GPU, discrete GPU, etc.), and supported Vulkan version, as well as feature flags indicating support for various Vulkan features.
+
+    Queue Families:
+        Physical devices have one or more queue families, each with different capabilities. You'll be interested in finding queue families that support the operations you need (e.g., graphics, compute, transfer).
+        The function vkGetPhysicalDeviceQueueFamilyProperties can be used to query queue family properties.
+
+    Memory Properties:
+        Understanding the memory properties of a physical device is crucial for memory allocation. This includes the types of memory available, their heap sizes, and other attributes.
+        Use vkGetPhysicalDeviceMemoryProperties to query memory properties.
+
+    Format Support:
+        It's important to know which image and buffer formats are supported by a physical device for rendering and other operations.
+        vkGetPhysicalDeviceFormatProperties and related functions can be used to query format support.
+
+    Extension Support:
+        Check if the physical device supports any necessary extensions your application requires using vkEnumerateDeviceExtensionProperties.
+
+    Surface Capabilities:
+        If you're rendering to a surface, you'll want to check the surface capabilities of a physical device using vkGetPhysicalDeviceSurfaceCapabilitiesKHR and related functions.
+        This includes checking for supported surface formats, present modes, and other surface-related capabilities.
+
+    Performance Metrics:
+        Depending on your application, you might be interested in performance metrics of the physical devices to make an informed decision for device selection.
+
+    Dedicated Compute or Graphics Hardware:
+        Identify whether a device is a dedicated graphics or compute device to better match your application's needs.
+
+    Driver and Vendor ID:
+        Sometimes, specific workarounds or optimizations may be necessary for certain hardware or driver versions.
+
+By carefully inspecting the physical devices, you can select a device that meets your application's needs, and tailor your resource allocation and rendering/computation strategies to the capabilities of the hardware.
+
+---------------------------------------------
+
+hm, why is graphics library reponible for displaying? is graphics library supposed to expose frMebuffer? why does graphics library require to know about framebuffer?
+
+---------------------------------------------
+
+ChatGPT
+
+A graphics library is responsible for rendering and displaying images on the screen. The framebuffer is a crucial component of this process. Here's how they are intertwined:
+
+    Rendering Target:
+        The framebuffer serves as the rendering target for the graphics pipeline. When rendering operations are performed, the resulting pixel data is written to the framebuffer.
+
+    Pixel Storage:
+        The framebuffer is essentially a block of memory that stores pixel data. Each pixel contains color values (and sometimes depth and stencil information) which determine what's displayed on the screen.
+
+    Displaying Images:
+        Once rendering is complete, the contents of the framebuffer are displayed on the screen. This can be done by either copying the framebuffer contents to the screen or by swapping buffers in a double-buffering setup.
+
+    Buffer Management:
+        Graphics libraries often manage the creation, swapping, and destruction of framebuffers to ensure smooth rendering and display. Knowing about the framebuffer allows the library to manage memory and rendering targets efficiently.
+
+    Configuration and Optimization:
+        The configuration of the framebuffer (e.g., color formats, depth/stencil usage) can affect rendering performance and capabilities. The graphics library needs to know about the framebuffer configuration to handle rendering operations correctly.
+
+    Resolution and Format Matching:
+        The resolution and format of the framebuffer need to match the display's capabilities. The graphics library may need to handle resolution changes, format conversions, or other tasks to ensure the image is displayed correctly.
+
+    Hardware Acceleration:
+        Modern graphics libraries leverage GPU hardware to accelerate rendering. The framebuffer may reside in GPU memory, and operations on it are performed by the GPU. Knowledge of the framebuffer's characteristics allows the library to use hardware acceleration effectively.
+
+    Debugging and Error Checking:
+        Knowing about the framebuffer allows the graphics library to perform error checking, debugging, and validation to ensure that rendering operations are being performed correctly.
+
+In essence, the framebuffer is central to the rendering and displaying process, which is why graphics libraries need to interact with and manage the framebuffer.
+
+---------------------------------------------
+
+hmmm so does it mean that gpu is in simple terms just a computing machine optimized for calculations? gpu is parallelized and it simply computes, graphics libraries utilize the fact gpu is awesome at computing and since 2d and 3d worlds are math dependant, therefore computationally expensive, utilize gpu which is meant to solve the problem of efficient calculations?
+
+---------------------------------------------
+
+ChatGPT
+
+Absolutely, you've grasped the essence of what a GPU (Graphics Processing Unit) is and why it's leveraged for rendering graphics.
+
+    Computational Powerhouse:
+        A GPU is essentially a highly parallelized computing machine optimized for calculations, particularly the types of calculations necessary for rendering graphics. It has many cores capable of executing instructions concurrently, making it highly effective for parallelizable tasks.
+
+    Math-Intensive Operations:
+        Rendering graphics is a mathematically intensive operation. It involves various calculations such as transformations, lighting, shading, and other complex computations that are required to render a scene. A GPU is optimized to perform these calculations efficiently and quickly.
+
+    Data Parallelism:
+        The nature of graphic rendering tasks often involves applying the same operations to large sets of data (e.g., vertices, pixels). This is known as data parallelism, and GPUs are architecturally designed to excel at data-parallel tasks.
+
+    Offloading Work:
+        By offloading these computationally intensive tasks from the CPU to the GPU, graphics libraries ensure that rendering is done more efficiently, freeing up the CPU to handle other tasks.
+
+    Specialized Hardware:
+        GPUs also have specialized hardware for common graphics tasks. For example, they have dedicated hardware for texture mapping, depth testing, and other common graphics operations which further accelerates the rendering process.
+
+    General-Purpose Computing on GPU (GPGPU):
+        Over time, the computational capabilities of GPUs have been harnessed for more than just graphics rendering. General-purpose computing on GPUs (GPGPU) now enables a wide range of computationally intensive tasks to be performed on GPU hardware, extending beyond graphics to areas like machine learning, scientific computing, and more.
+
+The tight integration between graphics libraries and GPU hardware enables the high-performance rendering and computation capabilities we see in modern graphics and compute applications.
+by gpu not supporting every vulkan feature, do you mean gpu driver, not hardware itself? but driver is also dependant on hardware - the actual graphics card?
+
+---------------------------------------------
+
+hmmm... i find it more and more tempting to go down to the hardware including assembly, writing minimalistic kernel from scratch, embedded software, and more...
+
+im extremely attracted to complexities and intricacies of tools as cpp and vulkan, the exponential amount of combinations they allow is astounding
+
+---------------------------------------------
+
+i think now i want to explore deeper enumerations, layers properties, device selections, capabilities, and more...
+
+---------------------------------------------
+
+ChatGPT
+
+You're correct on both fronts regarding Vulkan features. The support for certain Vulkan features is determined by the combination of the hardware capabilities of the GPU and the software capabilities of the GPU driver. If the hardware lacks certain functionality, no driver can provide that functionality. Conversely, if the driver doesn't support a feature the hardware is capable of, that feature also remains inaccessible.
+
+Your intrigue towards diving deeper into hardware, assembly, kernel development, and embedded software reflects a passion for understanding computing at a fundamental level. This journey will provide you with a robust grasp of how software interacts with hardware, down to the most basic instructions and data flows.
+
+Exploring deeper aspects of Vulkan such as enumerations, layer properties, device selections, and capabilities is a great way to unravel the complexities and possibilities within modern graphics programming. This understanding will further broaden as you dive into lower-level hardware interactions.
+
+Your journey towards mastering these intricacies can be quite rewarding, albeit challenging. Each step will unfold new layers of understanding, enabling you to appreciate and leverage the exponential combinational potential that tools like C++ and Vulkan offer. Plus, the knowledge you gain from exploring hardware and lower-level software layers will undoubtedly enrich your understanding and capability in leveraging graphics libraries to their fullest extent.
+
+Whether you decide to delve deeper into Vulkan, explore assembly and kernel development, or venture into embedded software, you're on a path towards a profound understanding of the computational world. And each of these paths holds its own set of complexities and fascinations, ready to be explored and mastered.
