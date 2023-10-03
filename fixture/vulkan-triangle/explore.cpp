@@ -82,11 +82,11 @@ void VKAPI_PTR pfnFree(void *pUserData, void *pMemory) {
 //
 //     VK_SYSTEM_ALLOCATION_SCOPE_USER: This is an indication for user
 //     allocations, though in practice it's rarely used.
-
+//
 // The idea behind providing this scope is to potentially help developers who
 // might want to segregate their memory allocations based on these categories.
 // For instance:
-
+//
 //     For short-lived allocations (like those associated with a command), you
 //     might allocate memory from a fast, temporary memory pool. For
 //     longer-lived allocations (like those associated with the lifespan of a
