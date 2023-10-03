@@ -1,8 +1,10 @@
 #include "explore.h"
 #include "vulkan/vk_enum_string_helper.h" // is there alternative helper?
+#include <cstring>
 #include <iostream>
 #include <new>
 #include <stdlib.h>
+#include <vector>
 #include <vulkan/vulkan.h>
 
 namespace {
@@ -203,9 +205,7 @@ void explore::vulkan_api() {
   // every time I want to rerun this example. Therefore I will guard it with a
   // boolean flag which I can toggle on and off.
 
-  const bool LOG_EXAMPLE_VULKAN_API{false};
-
-  if (LOG_EXAMPLE_VULKAN_API) {
+  if (const bool LOG_EXAMPLE_VULKAN_API{false}; LOG_EXAMPLE_VULKAN_API) {
     const std::string EXPLORE_VULKAN_API_BEGIN{R"(
 ~~~~~~~~~~~~~~~~~~~~~~~~
 EXPLORE_VULKAN_API_BEGIN
@@ -214,7 +214,7 @@ EXPLORE_VULKAN_API_BEGIN
 
     const std::string EXPLORE_VULKAN_API_END{R"(
 ~~~~~~~~~~~~~~~~~~~~~~~~
-EXPLORE_VULKAN_API_BEGIN
+EXPLORE_VULKAN_API_END
 ~~~~~~~~~~~~~~~~~~~~~~~~
 )"};
 
@@ -349,5 +349,91 @@ EXPLORE_VULKAN_API_BEGIN
     delete pUserData;
 
     std::cout << EXPLORE_VULKAN_API_END;
+  }
+}
+
+void explore::physical_device_enumeration() {
+  if (const bool LOG_EXAMPLE_PHYSICAL_DEVICE_ENUMERATION{false};
+      LOG_EXAMPLE_PHYSICAL_DEVICE_ENUMERATION) {
+    const std::string EXPLORE_PHYSICAL_DEVICE_ENUMERATION_BEGIN{R"(
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+EXPLORE_PHYSICAL_DEVICE_ENUMERATION_BEGIN
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+)"};
+
+    const std::string EXPLORE_PHYSICAL_DEVICE_ENUMERATION_END{R"(
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+EXPLORE_PHYSICAL_DEVICE_ENUMERATION_END
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+)"};
+    std::cout << EXPLORE_PHYSICAL_DEVICE_ENUMERATION_BEGIN;
+
+    std::vector<const char *> layerNames;
+    std::vector<const char *> extensionNames;
+
+    uint32_t instanceLayerPropertiesCount{0};
+    vkEnumerateInstanceLayerProperties(&instanceLayerPropertiesCount, nullptr);
+    std::vector<VkLayerProperties> instanceLayerProperties(
+        instanceLayerPropertiesCount);
+    vkEnumerateInstanceLayerProperties(&instanceLayerPropertiesCount,
+                                       instanceLayerProperties.data());
+
+    std::cout << "(info): Instance Layer Properties:\n\n";
+    for (const VkLayerProperties &layerProperties : instanceLayerProperties) {
+      std::cout << "  - layerProperties.layerName = "
+                << layerProperties.layerName << "\n"
+                << "  - layerProperties.description = "
+                << layerProperties.description << "\n"
+                << "  - layerProperties.specVersion = "
+                << layerProperties.specVersion << "\n"
+                << "  - layerProperties.implementationVersion = "
+                << layerProperties.implementationVersion << "\n\n";
+
+      uint32_t layerExtensionPropertiesCount{0};
+      vkEnumerateInstanceExtensionProperties(
+          layerProperties.layerName, &layerExtensionPropertiesCount, nullptr);
+      std::vector<VkExtensionProperties> layerExtensionProperties(
+          layerExtensionPropertiesCount);
+      vkEnumerateInstanceExtensionProperties(layerProperties.layerName,
+                                             &layerExtensionPropertiesCount,
+                                             layerExtensionProperties.data());
+
+      std::cout << "  (info): " << layerProperties.layerName
+                << " Extension Properties:\n\n";
+      if (layerExtensionPropertiesCount > 0) {
+        for (const VkExtensionProperties &extensionProperties :
+             layerExtensionProperties) {
+          std::cout << "    - extensionProperties.extensionName = "
+                    << extensionProperties.extensionName << "\n"
+                    << "    - extensionProperties.specVersion = "
+                    << extensionProperties.specVersion << "\n\n";
+        }
+      } else {
+        std::cout << "      No layer extension properties.\n\n";
+      }
+
+      if (std::strcmp(layerProperties.layerName,
+                      "VK_LAYER_KHRONOS_validation") == 0) {
+        layerNames.push_back(layerProperties.layerName);
+      }
+    }
+
+    std::cout << "(info): Enabled Instance Layers:\n\n";
+    for (const char *layerName : layerNames) {
+      std::cout << "  - layerName = " << layerName << "\n";
+    }
+
+    VkInstanceCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    createInfo.enabledLayerCount = static_cast<uint32_t>(layerNames.size());
+    createInfo.ppEnabledLayerNames = layerNames.data();
+    createInfo.enabledExtensionCount =
+        static_cast<uint32_t>(extensionNames.size());
+    createInfo.ppEnabledExtensionNames = extensionNames.data();
+
+    // TODO: Dig deep to select the graphics card.
+    // TODO: Dig deep to use the handle to the graphics device.
+
+    std::cout << EXPLORE_PHYSICAL_DEVICE_ENUMERATION_END;
   }
 }

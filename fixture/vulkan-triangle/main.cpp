@@ -78,6 +78,7 @@ VkShaderModule createShaderModule(VkDevice device,
 
 int main(int argc, char **argv) {
   explore::vulkan_api();
+  explore::physical_device_enumeration();
 
   uint32_t vulkanVersion;
 

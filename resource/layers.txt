@@ -1,0 +1,120 @@
+(info): Instance Layer Properties:
+  - layerProperties.layerName = VK_LAYER_NV_optimus
+  - layerProperties.description = NVIDIA Optimus layer
+  - layerProperties.specVersion = 4206834
+  - layerProperties.implementationVersion = 1
+
+  - layerProperties.layerName = VK_LAYER_OBS_HOOK
+  - layerProperties.description = Open Broadcaster Software hook
+  - layerProperties.specVersion = 4206808
+  - layerProperties.implementationVersion = 1
+
+  - layerProperties.layerName = VK_LAYER_VALVE_steam_overlay
+  - layerProperties.description = Steam Overlay Layer
+  - layerProperties.specVersion = 4206799
+  - layerProperties.implementationVersion = 1
+
+  - layerProperties.layerName = VK_LAYER_VALVE_steam_fossilize
+  - layerProperties.description = Steam Pipeline Caching Layer
+  - layerProperties.specVersion = 4206799
+  - layerProperties.implementationVersion = 1
+
+  - layerProperties.layerName = VK_LAYER_LUNARG_api_dump
+  - layerProperties.description = LunarG API dump layer
+  - layerProperties.specVersion = 4206853
+  - layerProperties.implementationVersion = 2
+
+  - layerProperties.layerName = VK_LAYER_LUNARG_gfxreconstruct
+  - layerProperties.description = GFXReconstruct Capture Layer Version 1.0.0
+  - layerProperties.specVersion = 4206853
+  - layerProperties.implementationVersion = 4194304
+
+  - layerProperties.layerName = VK_LAYER_KHRONOS_synchronization2
+  - layerProperties.description = Khronos Synchronization2 layer
+  - layerProperties.specVersion = 4206853
+  - layerProperties.implementationVersion = 1
+
+  - layerProperties.layerName = VK_LAYER_KHRONOS_validation
+  - layerProperties.description = Khronos Validation Layer
+  - layerProperties.specVersion = 4206853
+  - layerProperties.implementationVersion = 1
+
+  - layerProperties.layerName = VK_LAYER_LUNARG_monitor
+  - layerProperties.description = Execution Monitoring Layer
+  - layerProperties.specVersion = 4206853
+  - layerProperties.implementationVersion = 1
+
+  - layerProperties.layerName = VK_LAYER_LUNARG_screenshot
+  - layerProperties.description = LunarG image capture layer
+  - layerProperties.specVersion = 4206853
+  - layerProperties.implementationVersion = 1
+
+  - layerProperties.layerName = VK_LAYER_KHRONOS_profiles
+  - layerProperties.description = Khronos Profiles layer
+  - layerProperties.specVersion = 4206853
+  - layerProperties.implementationVersion = 1
+
+  - layerProperties.layerName = VK_LAYER_KHRONOS_shader_object
+  - layerProperties.description = Shader object layer
+  - layerProperties.specVersion = 4206853
+  - layerProperties.implementationVersion = 1
+
+
+-----------------------------------------------
+
+
+The Vulkan layers you've listed are a mix of vendor-provided layers, tool-specific layers, and standard layers that aid in the development and debugging process, and some for specific utilities and extensions. Here's a brief overview of each:
+
+    VK_LAYER_NV_optimus:
+        Description: NVIDIA's Optimus technology is for laptops that have integrated and discrete GPUs, allowing for dynamic switching between them based on workload. The layer might help in the correct behavior of Vulkan applications in Optimus setups.
+        Source: Typically comes with NVIDIA GPU drivers.
+
+    VK_LAYER_OBS_HOOK:
+        Description: Open Broadcaster Software (OBS) is popular for streaming and recording. This layer helps OBS hook into Vulkan applications to capture video.
+        Source: OBS.
+
+    VK_LAYER_VALVE_steam_overlay:
+        Description: Valve's Steam platform uses an overlay for in-game notifications, chat, etc. This layer ensures the overlay works correctly with Vulkan applications.
+        Source: Steam Client.
+
+    VK_LAYER_VALVE_steam_fossilize:
+        Description: Fossilize is part of Steam's shader compilation pipeline and helps with caching shaders to improve load times and performance.
+        Source: Steam Client.
+
+    VK_LAYER_LUNARG_api_dump:
+        Description: This layer logs all Vulkan API calls made by an application, which can be useful for debugging.
+        Source: Vulkan SDK provided by LunarG.
+
+    VK_LAYER_LUNARG_gfxreconstruct:
+        Description: GFXReconstruct is a tool that captures and replays Vulkan commands. This layer aids in this capture process.
+        Source: Vulkan SDK provided by LunarG.
+
+    VK_LAYER_KHRONOS_synchronization2:
+        Description: This layer is related to the Synchronization2 extension that aims to simplify synchronization in Vulkan.
+        Source: Typically, this would be part of Vulkan SDK or driver installations.
+
+    VK_LAYER_KHRONOS_validation:
+        Description: One of the most commonly used layers, this provides detailed feedback on incorrect API usage, best practices, performance warnings, and more.
+        Source: Vulkan SDK provided by LunarG.
+
+    VK_LAYER_LUNARG_monitor:
+        Description: A layer that can show framerate and other performance metrics as an overlay on Vulkan applications.
+        Source: Vulkan SDK provided by LunarG.
+
+    VK_LAYER_LUNARG_screenshot:
+        Description: Allows taking screenshots of Vulkan applications.
+        Source: Vulkan SDK provided by LunarG.
+
+    VK_LAYER_KHRONOS_profiles:
+        Description: Relates to the profiling of Vulkan applications.
+        Source: Likely part of the Vulkan SDK or driver installations.
+
+    VK_LAYER_KHRONOS_shader_object:
+        Description: Related to the Shader Object functionality in Vulkan.
+        Source: Typically, this would be part of Vulkan SDK or driver installations.
+
+Are they by default on my machine?
+
+    Vendor-Specific Layers like VK_LAYER_NV_optimus will be installed with your GPU drivers if they are supported.
+    Utility Layers like VK_LAYER_OBS_HOOK and VK_LAYER_VALVE_steam_overlay come with specific applications like OBS and Steam.
+    Development Layers like those from LunarG (e.g., VK_LAYER_LUNARG_api_dump) typically come with the Vulkan SDK.

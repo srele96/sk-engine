@@ -1,0 +1,179 @@
+`````````````````````````````````````````````````````````````````
+`````````````````````````````````````````````````````````````````
+`````````````````````````````````````````````````````````````````
+
+In Vulkan, extensions provide additional functionality that isn't available in the core specification. These can be features introduced by GPU vendors, platform-specific capabilities, or general improvements that haven't been added to the core spec yet.
+
+The extensions vector in your code is designed to store a list of names of the extensions that you want to enable when creating a Vulkan instance.
+
+When deciding which extensions to enable, it will depend on your application's needs. Here are some common extensions you might consider:
+
+    VK_KHR_surface: This extension is used to interface with the native windowing system, and is foundational for rendering to windows/screens.
+    VK_KHR_win32_surface (Windows) / VK_KHR_xcb_surface (Linux/XCB) / VK_KHR_wayland_surface (Linux/Wayland): Platform-specific extensions to interface with the windowing systems of those platforms.
+    VK_EXT_debug_utils: This extension provides utilities to annotate objects and improve debugging and tracing.
+    VK_KHR_get_physical_device_properties2: Extends the core VK_KHR_get_physical_device_properties functionality.
+
+The above are just a few examples. Your application might need other extensions depending on its features and target platforms.
+
+Once you've identified the extensions you need, you can add them to the extensions vector:
+
+Remember to always check if the extensions you need are available (using the querying method above) before enabling them. This helps ensure that your application runs on a broad range of systems and setups without issues.
+
+`````````````````````````````````````````````````````````````````
+
+
+whgy is first param nullptr?
+
+
+`````````````````````````````````````````````````````````````````
+
+
+In the function vkEnumerateInstanceExtensionProperties, the first parameter is a pointer to a layer name (const char*). When set to nullptr, the function retrieves the extensions that apply to the Vulkan instance itself, i.e., global extensions.
+
+If you provide a specific layer name instead of nullptr, the function would return the extensions supported by that specific layer.
+
+Here's the breakdown:
+
+    nullptr as the first parameter:
+        You're asking Vulkan: "What are the global extensions available for instances?"
+        This is the most common use-case when you're setting up a Vulkan instance, as you're typically interested in what global instance extensions are available on the system.
+
+    Specific layer name as the first parameter:
+        You're asking Vulkan: "What extensions are provided by this specific layer?"
+        This is less common, but it can be useful in cases where a layer introduces its own extensions that you might want to utilize.
+
+Most of the time, when setting up a Vulkan instance, you'll use nullptr to get the list of global extensions. If you're doing something specific with layers and their extensions, then you'd use the layer name.
+
+
+`````````````````````````````````````````````````````````````````
+`````````````````````````````````````````````````````````````````
+`````````````````````````````````````````````````````````````````
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+EXPLORE_PHYSICAL_DEVICE_ENUMERATION_BEGIN
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+(info): Instance Layer Properties:
+
+  - layerProperties.layerName = VK_LAYER_NV_optimus
+  - layerProperties.description = NVIDIA Optimus layer
+  - layerProperties.specVersion = 4206834
+  - layerProperties.implementationVersion = 1
+
+  (info): VK_LAYER_NV_optimus Extension Properties:
+
+      No layer extension properties.
+
+  - layerProperties.layerName = VK_LAYER_OBS_HOOK
+  - layerProperties.description = Open Broadcaster Software hook
+  - layerProperties.specVersion = 4206808
+  - layerProperties.implementationVersion = 1
+
+  (info): VK_LAYER_OBS_HOOK Extension Properties:
+
+      No layer extension properties.
+
+  - layerProperties.layerName = VK_LAYER_VALVE_steam_overlay
+  - layerProperties.description = Steam Overlay Layer
+  - layerProperties.specVersion = 4206799
+  - layerProperties.implementationVersion = 1
+
+  (info): VK_LAYER_VALVE_steam_overlay Extension Properties:
+
+      No layer extension properties.
+
+  - layerProperties.layerName = VK_LAYER_VALVE_steam_fossilize
+  - layerProperties.description = Steam Pipeline Caching Layer
+  - layerProperties.specVersion = 4206799
+  - layerProperties.implementationVersion = 1
+
+  (info): VK_LAYER_VALVE_steam_fossilize Extension Properties:
+
+      No layer extension properties.
+
+  - layerProperties.layerName = VK_LAYER_LUNARG_api_dump
+  - layerProperties.description = LunarG API dump layer
+  - layerProperties.specVersion = 4206853
+  - layerProperties.implementationVersion = 2
+
+  (info): VK_LAYER_LUNARG_api_dump Extension Properties:
+
+      No layer extension properties.
+
+  - layerProperties.layerName = VK_LAYER_LUNARG_gfxreconstruct
+  - layerProperties.description = GFXReconstruct Capture Layer Version 1.0.0
+  - layerProperties.specVersion = 4206853
+  - layerProperties.implementationVersion = 4194304
+
+  (info): VK_LAYER_LUNARG_gfxreconstruct Extension Properties:
+
+      No layer extension properties.
+
+  - layerProperties.layerName = VK_LAYER_KHRONOS_synchronization2
+  - layerProperties.description = Khronos Synchronization2 layer
+  - layerProperties.specVersion = 4206853
+  - layerProperties.implementationVersion = 1
+
+  (info): VK_LAYER_KHRONOS_synchronization2 Extension Properties:
+
+      No layer extension properties.
+
+  - layerProperties.layerName = VK_LAYER_KHRONOS_validation
+  - layerProperties.description = Khronos Validation Layer
+  - layerProperties.specVersion = 4206853
+  - layerProperties.implementationVersion = 1
+
+  (info): VK_LAYER_KHRONOS_validation Extension Properties:
+
+    - extensionProperties.extensionName = VK_EXT_debug_report
+    - extensionProperties.specVersion = 9
+
+    - extensionProperties.extensionName = VK_EXT_debug_utils
+    - extensionProperties.specVersion = 1
+
+    - extensionProperties.extensionName = VK_EXT_validation_features
+    - extensionProperties.specVersion = 2
+
+  - layerProperties.layerName = VK_LAYER_LUNARG_monitor
+  - layerProperties.description = Execution Monitoring Layer
+  - layerProperties.specVersion = 4206853
+  - layerProperties.implementationVersion = 1
+
+  (info): VK_LAYER_LUNARG_monitor Extension Properties:
+
+      No layer extension properties.
+
+  - layerProperties.layerName = VK_LAYER_LUNARG_screenshot
+  - layerProperties.description = LunarG image capture layer
+  - layerProperties.specVersion = 4206853
+  - layerProperties.implementationVersion = 1
+
+  (info): VK_LAYER_LUNARG_screenshot Extension Properties:
+
+      No layer extension properties.
+
+  - layerProperties.layerName = VK_LAYER_KHRONOS_profiles
+  - layerProperties.description = Khronos Profiles layer
+  - layerProperties.specVersion = 4206853
+  - layerProperties.implementationVersion = 1
+
+  (info): VK_LAYER_KHRONOS_profiles Extension Properties:
+
+      No layer extension properties.
+
+  - layerProperties.layerName = VK_LAYER_KHRONOS_shader_object
+  - layerProperties.description = Shader object layer
+  - layerProperties.specVersion = 4206853
+  - layerProperties.implementationVersion = 1
+
+  (info): VK_LAYER_KHRONOS_shader_object Extension Properties:
+
+      No layer extension properties.
+
+(info): Enabled Instance Layers:
+
+  - layerName = VK_LAYER_KHRONOS_validation
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+EXPLORE_PHYSICAL_DEVICE_ENUMERATION_END
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
