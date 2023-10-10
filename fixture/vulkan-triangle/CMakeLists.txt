@@ -18,14 +18,15 @@ foreach(SHADER ${SHADERS})
   list(APPEND SHADERS_SPV ${SHADER}.spv)
 endforeach()
 
+# Create dependency target so the executable can depend on compiled shaders.
 add_custom_target(
   compile-shaders
   DEPENDS
   ${SHADERS_SPV}
 )
 
-# Copy files to make them available at runtime for the executable as relative
-# path to it
+# Copy shaders to the executable directory.
+# Make them available at runtime by relative path.
 foreach(SHADER_SPV ${SHADERS_SPV})
   add_custom_command(
     TARGET compile-shaders POST_BUILD
@@ -41,7 +42,7 @@ add_executable(
   ${CMAKE_CURRENT_SOURCE_DIR}/explore.cpp
 )
 
-# Trigger the compilation of shaders to copy them to the build directory afterwards.
+# Trigger the compilation of shaders.
 add_dependencies(
   vulkan-triangle
   compile-shaders
