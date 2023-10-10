@@ -1,3 +1,38 @@
+# Avoid using glob to find files
+# https://news.ycombinator.com/item?id=14423481
+set(
+  SHADERS
+
+  ${CMAKE_CURRENT_SOURCE_DIR}/shader.vert
+  ${CMAKE_CURRENT_SOURCE_DIR}/shader.frag
+)
+
+# Compile shaders to SPIR-V format.
+foreach(SHADER ${SHADERS})
+  add_custom_command(
+    OUTPUT ${SHADER}.spv
+    COMMAND glslc ${SHADER} -o ${SHADER}.spv
+    DEPENDS ${SHADER}
+  )
+  # Provide dependency list.
+  list(APPEND SHADERS_SPV ${SHADER}.spv)
+endforeach()
+
+add_custom_target(
+  compile-shaders
+  DEPENDS
+  ${SHADERS_SPV}
+)
+
+# Copy files to make them available at runtime for the executable as relative
+# path to it
+foreach(SHADER_SPV ${SHADERS_SPV})
+  add_custom_command(
+    TARGET compile-shaders POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${SHADER_SPV} ${CMAKE_CURRENT_BINARY_DIR}
+  )
+endforeach()
+
 add_executable(
   vulkan-triangle
 
@@ -6,29 +41,11 @@ add_executable(
   ${CMAKE_CURRENT_SOURCE_DIR}/explore.cpp
 )
 
-# Avoid using glob to find files
-# https://news.ycombinator.com/item?id=14423481
-set(
-  SPV_FILES
-
-  # Error prone, the whole problem and solution for these is problematic
-  # i have to embed the name of these in the executable AND here
-  # they are also compiled which is also problematic because they can change
-  # the name
-  ${CMAKE_CURRENT_SOURCE_DIR}/shader.vert.spv
-  ${CMAKE_CURRENT_SOURCE_DIR}/shader.frag.spv
+# Trigger the compilation of shaders to copy them to the build directory afterwards.
+add_dependencies(
+  vulkan-triangle
+  compile-shaders
 )
-
-# There is a possibility to make cmake build shaders, however one of the issues
-# I had when I tried to implement it is add_custom_command not running and I
-# didn't want to spend more time figuring that out as that feature wasn't worth
-# the time because I want to focus on displaying a triangle.
-
-# copy files to make them available at runtime for the executable as relative
-# path to it
-foreach(SPV_FILE ${SPV_FILES})
-  configure_file(${SPV_FILE} ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
-endforeach(SPV_FILE ${SPV_FILES})
 
 target_link_libraries(
   vulkan-triangle
