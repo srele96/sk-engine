@@ -872,7 +872,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <glad/glad.h>
+// Linux is case-sensitive with file paths, while Windows is not. Ensure that all file and directory names match exactly in case.
+//
+// Fixes:
+//
+// srecko@srecko-desktop:~/Documents/projects/ct-sk-experiments/sk-engine$ cmake --build build
+// [  9%] Building C object src/CMakeFiles/sk-engine.dir/__/include/GLAD/glad.c.o
+// /home/srecko/Documents/projects/ct-sk-experiments/sk-engine/include/GLAD/glad.c:875:10: fatal error: glad/glad.h: No such file or directory
+//   875 | #include <glad/glad.h>
+#include <GLAD/glad.h>
 
 static void* get_proc(const char *namez);
 
