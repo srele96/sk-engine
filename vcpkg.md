@@ -81,7 +81,7 @@ GLFW3 currently requires the following libraries from the system package manager
 These can be installed on Ubuntu systems via sudo apt install libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config
 ```
 
-Install the required packages to build glfw3:
+Install the required packages to build glfw3 _(Also check [Error installing glfw3:x64-linux](https://github.com/microsoft/vcpkg/issues/7187))_:
 
 ```terminal
 sudo apt install libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config
