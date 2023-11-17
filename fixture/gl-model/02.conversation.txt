@@ -1,0 +1,61 @@
+User
+To render a gltf model imported eith assimp using opengl i assume i need to see how assimp stores data and where and then figure out how to store data in buffers and render it
+ChatGPT
+
+You are correct. Rendering a GLTF model imported with Assimp in OpenGL involves several steps, which include understanding how Assimp structures the imported data and then utilizing that data in OpenGL. Here's a basic outline of the process:
+
+    Import the GLTF Model with Assimp:
+        Use Assimp to load the GLTF file. Assimp will parse the file and store the data in its own structure, typically as a scene graph containing nodes, each of which may have meshes, materials, textures, and possibly animations.
+
+    Understand Assimp's Data Structure:
+        Examine how Assimp stores the model's data. This includes understanding its structures for meshes, vertices, normals, texture coordinates, materials, and animations if present.
+
+    Extract Data from Assimp's Structures:
+        Iterate through the scene graph provided by Assimp to extract the required data. You'll need to retrieve vertex positions, normals, texture coordinates, indices for indexed drawing, and material properties.
+
+    Create OpenGL Buffers:
+        Use the data extracted from Assimp to create Vertex Buffer Objects (VBOs) and Element Buffer Objects (EBOs) in OpenGL. These buffers will store the vertex data and index data respectively.
+
+    Define Vertex Attributes:
+        Set up vertex attribute pointers to tell OpenGL how to interpret the VBO data (positions, normals, texture coordinates, etc.).
+
+    Load Textures (if any):
+        If your model has textures, load them into OpenGL texture objects.
+
+    Write the Shader Programs:
+        Write vertex and fragment shaders. These will define how your model is rendered, including how it's lit, how textures are applied, etc.
+
+    Render the Model:
+        Use the prepared shaders and bind the VBOs and EBOs to render the model. This will involve setting up transformations, handling materials, and possibly dealing with animations.
+
+    Handle Animations (Optional):
+        If the model has animations, additional work is required to apply bone transformations.
+
+    Cleanup:
+        Once rendering is complete, or the application is closing, clean up by deleting buffers and freeing any allocated resources.
+
+Remember, each of these steps can have quite a bit of complexity, especially when dealing with more advanced features like animations, complex materials, or lighting effects in your shaders. It's advisable to start with a simple model and gradually add more features as you become comfortable with the basics.
+User
+What about opengl vertex axes? Values rendered are between 1 and -1, will i need some stuff there?
+ChatGPT
+
+Yes, OpenGL operates in a coordinate system where the visible region ranges from -1 to 1 in the X, Y, and Z axes. This is known as Normalized Device Coordinates (NDC). Any geometry that falls outside this range is not displayed on the screen. To properly render your models, which are likely defined in a different coordinate system, you'll need to transform their vertices into this NDC space. Here are the key transformations involved:
+
+    Model Transformation:
+        Converts from model space (local coordinates of the model) to world space. This is where you apply transformations like translation, rotation, and scaling to position your model in the world.
+
+    View Transformation:
+        Converts from world space to view space (or camera/eye space). This involves moving and rotating the scene to simulate the camera's position and orientation.
+
+    Projection Transformation:
+        Converts from view space to clip space. In this step, you define how the scene is projected onto a 2D plane (your screen). This is where the perspective (for 3D effects) or orthographic (for 2D effects) projection is applied. After this step, the coordinates are still not in NDC, as they need to go through the perspective divide.
+
+    Perspective Divide:
+        Converts from clip space to NDC. This is done automatically by OpenGL after your vertex shader runs. It involves dividing the X, Y, and Z components of each vertex by its W component (homogeneous coordinate).
+
+    Viewport Transformation:
+        Finally, OpenGL maps the NDC to screen coordinates. This step is handled by OpenGL's viewport settings, which you can control with glViewport. This transformation takes the [-1, 1] range of the NDC and maps it to the actual size of the window or the framebuffer where rendering is taking place.
+
+For a model imported with Assimp, you'll typically apply the model transformation to position, scale, or rotate your model as needed. The view and projection transformations are based on your camera setup. You'll pass these transformations to your vertex shader as uniform variables, usually in the form of a Model-View-Projection (MVP) matrix, which is the result of multiplying the model, view, and projection matrices together. The vertex shader then applies this matrix to each vertex.
+
+Remember, these transformations are fundamental to rendering in OpenGL, and understanding them is key to effectively rendering your scenes.
