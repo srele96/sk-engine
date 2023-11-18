@@ -1,0 +1,111 @@
+reason materials or textures are not exported/embeded or whatever
+
+https://blender.stackexchange.com/questions/57531/fbx-export-why-there-are-no-materials-or-textures
+
+missing path to the texture because it's not principled bsdf
+
+https://medium.com/@joelmalone/how-to-fix-missing-materials-and-textures-when-exporting-a-blender-file-to-gltf-3649cbaf87fb
+
+-------------------------------------------------------------------------------
+
+ChatGPT:
+
+Use glTF Viewer: There are online glTF viewers (like the Babylon.js Sandbox or
+Don McCurdy's glTF Viewer) where you can drag and drop your exported file to see
+if it appears correctly with the textures.
+
+
+
+https://gltf-viewer.donmccurdy.com/
+
+
+
+RIP, incorrect export, blank sides
+
+
+
+first, it took me a while to come up with information that if texture's length
+of 0 on a material means texture is not correctly imported
+
+material contains colors and textures, nothing else, after i saw that information
+from chatgpt i realized i might incorrectly export the model
+
+i quickly asked gpt how can i verify if texture is there or not and it suggested
+that i should check .gltf file which is textual representation of gltf format
+and .glb is binary representation
+
+i opened web browser with gltf viewer and realized that two sides of the cube
+were blank which meant the texture was rendered incorrectly, or possibly
+exported incorrectly...
+
+i wonder how would i have been able to spot this information earlier, actually
+i wonder when was this information relevant for me, because i was looking for
+a way to see what model data do i have available when i import a model using
+assimp
+
+i feel like this data has been relevant for me for maybe, let me check, i think
+i have it in the gpt chat...
+
+it became relevant from the moment i asked where are images that i rendered
+in the blender and why are all textures of length zero
+and it became relevant only after i started to investigate those questions
+i wonder if gpt gave me an answer and i was not able to understand it
+if i was not able to understand it, then how could i have been able to
+understand it
+is there some sepcific training that i can do to avoid such situations?
+
+the initial bias of thought and lack of clarity, i do not understand
+a thing and initial thing i see in blender for example the way these
+materials are grouped i thought i should see relevant information on imported
+model but i did not and i was wondering why is it like that, i do not know
+if i am able to comprehend all answers gpt gives me?
+
+hmm i thought that a texture can somehow be a part of material, like stored on
+material property because i stored it as such using blender and it took me
+a while to understand that a texture should be correctly exported... i will
+understand once i export the textures correctly, here are new conclusions
+
+```
+so if i get it right a texture is of a given type and i retrieve a path or
+texture info if embedded from gltf model?
+```
+
+```
+hm does it mean that i know only a texture info and a type of texture and
+according to type i should implement a shader that correctly implements this
+type such as shader for diffuse, specular, i do not get anything from the model
+on how to handle diffuse or specular? because diffuse and specular are widely
+known how they work?
+```
+
+both of these were correct understanding... it seems like that...
+
+-------------------------------------------------------------------------------
+
+and then once i thought i understood the problem, i realized there was more
+the blender doesn't export paths to textures, unless the texture is 
+`principled bsdf` whatever that is, i should research
+
+https://medium.com/@joelmalone/how-to-fix-missing-materials-and-textures-when-exporting-a-blender-file-to-gltf-3649cbaf87fb
+
+-------------------------------------------------------------------------------
+
+once i thought i understood the problem and what i need to do, i realized there
+was more to understand, however i consistently pushed for more questions of how
+to complete the task, rather than understanding the problem of why i can't
+complete the task
+
+
+RIP
+
+```
+ahhhhhh so gltf format EXPECTS the model to be optimized for PBR workflow,
+physical based rendering, and therefore it was UNUSUAL and UNEXPECTED of me to
+use diffuse bsdf while exporting to gltf, if I exported to other formats, then
+these other formats are more optimized for some other stuff, so I was missing
+information that each of these model formats are for different purposes and
+solve different problem and for appropriate rendering stuff I should use
+appropriate models, so in my situation, If i wanted diffuse texture, i should
+have used principled bsdf and adjust it to contain a diffuse texture, did i get
+that right?
+```

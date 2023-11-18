@@ -62,18 +62,40 @@ void traverse(const aiScene *scene, std::ostream &out = std::cout) {
       aiMaterial *material{scene->mMaterials[mesh->mMaterialIndex]};
       out << "Material name: " << material->GetName().C_Str() << "\n";
       // get materials
-      std::for_each(texture_types.begin(), texture_types.end(),
-                    [&material, &out](aiTextureType texture_type) {
-                      out << "Textures: "
-                          << material->GetTextureCount(texture_type) << "\n";
-                      // All textures are 0. Why?
-                      for (unsigned int j{0};
-                           j < material->GetTextureCount(texture_type); ++j) {
-                        aiString texturePath;
-                        material->GetTexture(texture_type, j, &texturePath);
-                        out << "Texture path: " << texturePath.C_Str() << "\n";
-                      }
-                    });
+      std::for_each(
+          texture_types.begin(), texture_types.end(),
+          [&material, &out, &scene](aiTextureType texture_type) {
+            const unsigned int texture_count{
+                material->GetTextureCount(texture_type)};
+            if (texture_count > 0) {
+              out << "Textures: " << material->GetTextureCount(texture_type)
+                  << "\n";
+              // All textures are 0. Why?
+              // They were 0 because model didn't contain reference or
+              // embedding of any texture.
+              // Blender didn't export texture on diffuse bsdf node.
+              // Sadge!
+              for (unsigned int j{0};
+                   j < material->GetTextureCount(texture_type); ++j) {
+                aiString path;
+                material->GetTexture(texture_type, j, &path);
+                out << "Texture info:\n";
+                out << "  - Path: " << path.C_Str() << "\n";
+                // If texture is embedded, get it
+                // assimp labels textures with '*1', '*2', etc.
+                // Example: https://github.com/assimp/assimp-net/issues/50
+                if (path.data[0] == '*') {
+                  const aiTexture *texture{
+                      scene->GetEmbeddedTexture(path.C_Str())};
+                  out << "  - Filename: " << texture->mFilename.C_Str() << "\n";
+                  out << "  - Width: " << texture->mWidth << "\n";
+                  out << "  - Height: " << texture->mHeight << "\n";
+                }
+              }
+            } else {
+              out << "Textures: Not found\n";
+            }
+          });
 
       aiColor3D diffuseColor;
       if (material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor) == AI_SUCCESS) {
@@ -116,59 +138,91 @@ void traverse(const aiScene *scene, std::ostream &out = std::cout) {
 } // namespace gl_model
 
 int main() {
-  Assimp::Importer cubeImporter;
+  {
+    Assimp::Importer cubeImporter;
 
-  const std::string cubePath{"/home/srecko/Documents/blender/export/cube.glb"};
-  const aiScene *cubeScene{cubeImporter.ReadFile(
-      cubePath, aiProcess_Triangulate | aiProcess_FlipUVs)};
+    const std::string cubePath{
+        "/home/srecko/Documents/blender/export/cube.glb"};
+    const aiScene *cubeScene{cubeImporter.ReadFile(
+        cubePath,
+        aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_EmbedTextures)};
 
-  if (!cubeScene || cubeScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
-      !cubeScene->mRootNode) {
-    std::cerr << "Error. Load model " << cubePath
-              << cubeImporter.GetErrorString() << "\n";
+    if (!cubeScene || cubeScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
+        !cubeScene->mRootNode) {
+      std::cerr << "Error. Load model " << cubePath
+                << cubeImporter.GetErrorString() << "\n";
 
-    return 1;
+      return 1;
+    }
+
+    std::cout << "Success. Load model " << cubePath << ".\n";
+
+    // --------------------------------------------------------------------------
+    // All vertex data is between -1 and 1, why? I did not modify the mode's
+    // scale, maybe that's the default size of the cube in blender?
+    // --------------------------------------------------------------------------
+
+    std::cout << "Traverse " << cubePath << "\n";
+    gl_model::traverse(cubeScene);
   }
 
-  std::cout << "Success. Load model " << cubePath << ".\n";
-
-  // --------------------------------------------------------------------------
-  // All vertex data is between -1 and 1, why? I did not modify the mode's
-  // scale, maybe that's the default size of the cube in blender?
   // --------------------------------------------------------------------------
 
-  std::cout << "Traverse " << cubePath << "\n";
-  gl_model::traverse(cubeScene);
+  {
+    Assimp::Importer enlargedCubeImporter;
 
-  // --------------------------------------------------------------------------
+    const std::string enlargedCubePath{
+        "/home/srecko/Documents/blender/export/enlarged-cube.glb"};
+    const aiScene *enlargedCubeScene{enlargedCubeImporter.ReadFile(
+        enlargedCubePath,
+        aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_EmbedTextures)};
 
-  Assimp::Importer enlargedCubeImporter;
+    if (!enlargedCubeScene ||
+        enlargedCubeScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
+        !enlargedCubeScene->mRootNode) {
+      std::cerr << "Error. Load model " << enlargedCubePath
+                << enlargedCubeImporter.GetErrorString() << "\n";
 
-  const std::string enlargedCubePath{
-      "/home/srecko/Documents/blender/export/enlarged-cube.glb"};
-  const aiScene *enlargedCubeScene{enlargedCubeImporter.ReadFile(
-      enlargedCubePath, aiProcess_Triangulate | aiProcess_FlipUVs)};
+      return 1;
+    }
 
-  if (!enlargedCubeScene ||
-      enlargedCubeScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
-      !enlargedCubeScene->mRootNode) {
-    std::cerr << "Error. Load model " << enlargedCubePath
-              << enlargedCubeImporter.GetErrorString() << "\n";
+    std::cout << "Success. Load model " << enlargedCubePath << ".\n";
 
-    return 1;
+    std::cout << "Traverse " << enlargedCubePath << "\n";
+    gl_model::traverse(enlargedCubeScene);
+
+    // --------------------------------------------------------------------------
+    // Vertices are larger than -1 and 1. Probably because the model has to be
+    // moved from model space to world space.
+    //
+    // Well, well... I wonder how am I going to do that! We shall see.
+    // --------------------------------------------------------------------------
   }
 
-  std::cout << "Success. Load model " << enlargedCubePath << ".\n";
-
-  std::cout << "Traverse " << enlargedCubePath << "\n";
-  gl_model::traverse(enlargedCubeScene);
-
   // --------------------------------------------------------------------------
-  // Vertices are larger than -1 and 1. Probably because the model has to be
-  // moved from model space to world space.
-  //
-  // Well, well... I wonder how am I going to do that! We shall see.
-  // --------------------------------------------------------------------------
+
+  {
+    Assimp::Importer importer;
+
+    const std::string path{
+        "/home/srecko/Documents/blender/export/cube-two.glb"};
+    const aiScene *scene{importer.ReadFile(path, aiProcess_Triangulate |
+                                                     aiProcess_FlipUVs |
+                                                     aiProcess_EmbedTextures)};
+
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
+        !scene->mRootNode) {
+      std::cerr << "Error. Load model " << path << importer.GetErrorString()
+                << "\n";
+
+      return 1;
+    }
+
+    std::cout << "Success. Load model " << path << ".\n";
+
+    std::cout << "Traverse " << path << "\n";
+    gl_model::traverse(scene);
+  }
 
   return 0;
 }
