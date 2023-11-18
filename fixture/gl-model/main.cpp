@@ -139,57 +139,55 @@ void traverse(const aiScene *scene, std::ostream &out = std::cout) {
 
 int main() {
   {
-    Assimp::Importer cubeImporter;
+    Assimp::Importer importer;
 
-    const std::string cubePath{
-        "/home/srecko/Documents/blender/export/cube.glb"};
-    const aiScene *cubeScene{cubeImporter.ReadFile(
-        cubePath,
-        aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_EmbedTextures)};
+    const std::string path{"/home/srecko/Documents/blender/export/cube.glb"};
+    const aiScene *scene{importer.ReadFile(path, aiProcess_Triangulate |
+                                                     aiProcess_FlipUVs |
+                                                     aiProcess_EmbedTextures)};
 
-    if (!cubeScene || cubeScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
-        !cubeScene->mRootNode) {
-      std::cerr << "Error. Load model " << cubePath
-                << cubeImporter.GetErrorString() << "\n";
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
+        !scene->mRootNode) {
+      std::cerr << "Error. Load model " << path << importer.GetErrorString()
+                << "\n";
 
       return 1;
     }
 
-    std::cout << "Success. Load model " << cubePath << ".\n";
+    std::cout << "Success. Load model " << path << ".\n";
 
     // --------------------------------------------------------------------------
     // All vertex data is between -1 and 1, why? I did not modify the mode's
     // scale, maybe that's the default size of the cube in blender?
     // --------------------------------------------------------------------------
 
-    std::cout << "Traverse " << cubePath << "\n";
-    gl_model::traverse(cubeScene);
+    std::cout << "Traverse " << path << "\n";
+    gl_model::traverse(scene);
   }
 
   // --------------------------------------------------------------------------
 
   {
-    Assimp::Importer enlargedCubeImporter;
+    Assimp::Importer importer;
 
-    const std::string enlargedCubePath{
+    const std::string path{
         "/home/srecko/Documents/blender/export/enlarged-cube.glb"};
-    const aiScene *enlargedCubeScene{enlargedCubeImporter.ReadFile(
-        enlargedCubePath,
-        aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_EmbedTextures)};
+    const aiScene *scene{importer.ReadFile(path, aiProcess_Triangulate |
+                                                     aiProcess_FlipUVs |
+                                                     aiProcess_EmbedTextures)};
 
-    if (!enlargedCubeScene ||
-        enlargedCubeScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
-        !enlargedCubeScene->mRootNode) {
-      std::cerr << "Error. Load model " << enlargedCubePath
-                << enlargedCubeImporter.GetErrorString() << "\n";
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
+        !scene->mRootNode) {
+      std::cerr << "Error. Load model " << path << importer.GetErrorString()
+                << "\n";
 
       return 1;
     }
 
-    std::cout << "Success. Load model " << enlargedCubePath << ".\n";
+    std::cout << "Success. Load model " << path << ".\n";
 
-    std::cout << "Traverse " << enlargedCubePath << "\n";
-    gl_model::traverse(enlargedCubeScene);
+    std::cout << "Traverse " << path << "\n";
+    gl_model::traverse(scene);
 
     // --------------------------------------------------------------------------
     // Vertices are larger than -1 and 1. Probably because the model has to be
