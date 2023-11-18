@@ -6,6 +6,7 @@
 #include <array>
 #include <functional>
 #include <iostream>
+#include <unordered_set>
 
 namespace gl_model {
 
@@ -135,6 +136,25 @@ void traverse(const aiScene *scene, std::ostream &out = std::cout) {
   recurse(scene->mRootNode);
 }
 
+void inspect_model(const std::string &path, std::ostream &out = std::cout) {
+  Assimp::Importer importer;
+
+  const aiScene *scene{importer.ReadFile(path, aiProcess_Triangulate |
+                                                   aiProcess_FlipUVs |
+                                                   aiProcess_EmbedTextures)};
+
+  if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
+      !scene->mRootNode) {
+    throw std::runtime_error("Error. Load model " + path +
+                             importer.GetErrorString());
+  }
+
+  out << "Success. Load model " << path << ".\n";
+
+  out << "Traverse " << path << "\n";
+  traverse(scene, out);
+}
+
 } // namespace gl_model
 
 int main() {
@@ -154,77 +174,21 @@ int main() {
   // Well, well... I wonder how am I going to do that! We shall see.
   // --------------------------------------------------------------------------
 
-  { // Inspect the model's vertices
-    Assimp::Importer importer;
+  const std::unordered_set<std::string> paths{
+      // Inspect the model's vertices
+      "/home/srecko/Documents/blender/export/cube.glb",
+      // Inspect enlarged mode's vertices
+      "/home/srecko/Documents/blender/export/enlarged-cube.glb",
+      // Inspect exported model's textures
+      "/home/srecko/Documents/blender/export/cube-two.glb"};
 
-    const std::string path{"/home/srecko/Documents/blender/export/cube.glb"};
-    const aiScene *scene{importer.ReadFile(path, aiProcess_Triangulate |
-                                                     aiProcess_FlipUVs |
-                                                     aiProcess_EmbedTextures)};
-
-    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
-        !scene->mRootNode) {
-      std::cerr << "Error. Load model " << path << importer.GetErrorString()
-                << "\n";
-
-      return 1;
+  std::for_each(paths.begin(), paths.end(), [](const std::string &path) {
+    try {
+      gl_model::inspect_model(path);
+    } catch (const std::exception &e) {
+      std::cerr << e.what() << "\n";
     }
-
-    std::cout << "Success. Load model " << path << ".\n";
-
-    std::cout << "Traverse " << path << "\n";
-    gl_model::traverse(scene);
-  }
-
-  // --------------------------------------------------------------------------
-
-  { // Inspect enlarged mode's vertices
-    Assimp::Importer importer;
-
-    const std::string path{
-        "/home/srecko/Documents/blender/export/enlarged-cube.glb"};
-    const aiScene *scene{importer.ReadFile(path, aiProcess_Triangulate |
-                                                     aiProcess_FlipUVs |
-                                                     aiProcess_EmbedTextures)};
-
-    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
-        !scene->mRootNode) {
-      std::cerr << "Error. Load model " << path << importer.GetErrorString()
-                << "\n";
-
-      return 1;
-    }
-
-    std::cout << "Success. Load model " << path << ".\n";
-
-    std::cout << "Traverse " << path << "\n";
-    gl_model::traverse(scene);
-  }
-
-  // --------------------------------------------------------------------------
-
-  { // Inspect exported model's textures
-    Assimp::Importer importer;
-
-    const std::string path{
-        "/home/srecko/Documents/blender/export/cube-two.glb"};
-    const aiScene *scene{importer.ReadFile(path, aiProcess_Triangulate |
-                                                     aiProcess_FlipUVs |
-                                                     aiProcess_EmbedTextures)};
-
-    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
-        !scene->mRootNode) {
-      std::cerr << "Error. Load model " << path << importer.GetErrorString()
-                << "\n";
-
-      return 1;
-    }
-
-    std::cout << "Success. Load model " << path << ".\n";
-
-    std::cout << "Traverse " << path << "\n";
-    gl_model::traverse(scene);
-  }
+  });
 
   return 0;
 }
