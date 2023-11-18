@@ -138,7 +138,23 @@ void traverse(const aiScene *scene, std::ostream &out = std::cout) {
 } // namespace gl_model
 
 int main() {
-  {
+  // --------------------------------------------------------------------------
+  // Impression 1:
+  //
+  // All vertex data is between -1 and 1, why? I did not modify the mode's
+  // scale, maybe that's the default size of the cube in blender?
+  // --------------------------------------------------------------------------
+
+  // --------------------------------------------------------------------------
+  // Impression 2:
+  //
+  // Vertices are larger than -1 and 1. Probably because the model has to be
+  // moved from model space to world space.
+  //
+  // Well, well... I wonder how am I going to do that! We shall see.
+  // --------------------------------------------------------------------------
+
+  { // Inspect the model's vertices
     Assimp::Importer importer;
 
     const std::string path{"/home/srecko/Documents/blender/export/cube.glb"};
@@ -156,18 +172,13 @@ int main() {
 
     std::cout << "Success. Load model " << path << ".\n";
 
-    // --------------------------------------------------------------------------
-    // All vertex data is between -1 and 1, why? I did not modify the mode's
-    // scale, maybe that's the default size of the cube in blender?
-    // --------------------------------------------------------------------------
-
     std::cout << "Traverse " << path << "\n";
     gl_model::traverse(scene);
   }
 
   // --------------------------------------------------------------------------
 
-  {
+  { // Inspect enlarged mode's vertices
     Assimp::Importer importer;
 
     const std::string path{
@@ -188,18 +199,11 @@ int main() {
 
     std::cout << "Traverse " << path << "\n";
     gl_model::traverse(scene);
-
-    // --------------------------------------------------------------------------
-    // Vertices are larger than -1 and 1. Probably because the model has to be
-    // moved from model space to world space.
-    //
-    // Well, well... I wonder how am I going to do that! We shall see.
-    // --------------------------------------------------------------------------
   }
 
   // --------------------------------------------------------------------------
 
-  {
+  { // Inspect exported model's textures
     Assimp::Importer importer;
 
     const std::string path{
