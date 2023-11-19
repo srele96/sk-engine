@@ -117,13 +117,18 @@ void traverse(const aiScene *scene, std::ostream &out = std::cout) {
                     if (data) {
                       // We should be able to use texture data for rendering.
 
+                      // The texture looks like it's in the original size.
+                      // Should I have some information how it's mapped to the
+                      // model? Maybe a UV map or something else?
+
                       out << "  Decompressed texture\n";
                       out << "    - Width: " << width << "\n";
                       out << "    - Height: " << height << "\n";
                       out << "    - Channels: " << channels << "\n";
                       stbi_image_free(data);
                     } else {
-                      out << "  Failed to decompress texture\n";
+                      out << "  Failed to decompress texture: "
+                          << stbi_failure_reason() << "\n";
                     }
                   } else {
                     out << "  - Decompressed\n";
