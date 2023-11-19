@@ -12,6 +12,58 @@
 
 namespace gl_model {
 
+std::string texture_type_string(const aiTextureType texture_type) {
+  switch (texture_type) {
+  case aiTextureType_NONE:
+    return "aiTextureType_NONE";
+  case aiTextureType_DIFFUSE:
+    return "aiTextureType_DIFFUSE";
+  case aiTextureType_SPECULAR:
+    return "aiTextureType_SPECULAR";
+  case aiTextureType_AMBIENT:
+    return "aiTextureType_AMBIENT";
+  case aiTextureType_EMISSIVE:
+    return "aiTextureType_EMISSIVE";
+  case aiTextureType_HEIGHT:
+    return "aiTextureType_HEIGHT";
+  case aiTextureType_NORMALS:
+    return "aiTextureType_NORMALS";
+  case aiTextureType_SHININESS:
+    return "aiTextureType_SHININESS";
+  case aiTextureType_OPACITY:
+    return "aiTextureType_OPACITY";
+  case aiTextureType_DISPLACEMENT:
+    return "aiTextureType_DISPLACEMENT";
+  case aiTextureType_LIGHTMAP:
+    return "aiTextureType_LIGHTMAP";
+  case aiTextureType_REFLECTION:
+    return "aiTextureType_REFLECTION";
+  case aiTextureType_BASE_COLOR:
+    return "aiTextureType_BASE_COLOR";
+  case aiTextureType_NORMAL_CAMERA:
+    return "aiTextureType_NORMAL_CAMERA";
+  case aiTextureType_EMISSION_COLOR:
+    return "aiTextureType_EMISSION_COLOR";
+  case aiTextureType_METALNESS:
+    return "aiTextureType_METALNESS";
+  case aiTextureType_DIFFUSE_ROUGHNESS:
+    return "aiTextureType_DIFFUSE_ROUGHNESS";
+  case aiTextureType_AMBIENT_OCCLUSION:
+    return "aiTextureType_AMBIENT_OCCLUSION";
+  case aiTextureType_SHEEN:
+    return "aiTextureType_SHEEN";
+  case aiTextureType_CLEARCOAT:
+    return "aiTextureType_CLEARCOAT";
+  case aiTextureType_TRANSMISSION:
+    return "aiTextureType_TRANSMISSION";
+  case aiTextureType_UNKNOWN:
+    return "aiTextureType_UNKNOWN";
+  default:
+    // Not sure if i should throw or not. Probably a design decision.
+    return "Unknown Texture Type";
+  }
+}
+
 void traverse(const aiScene *scene, std::ostream &out = std::cout) {
   std::function<void(aiNode *)> recurse{[&scene, &recurse, &out](aiNode *node) {
     // is there a way to use c++ standard containers instead of c-style
@@ -92,8 +144,8 @@ void traverse(const aiScene *scene, std::ostream &out = std::cout) {
             const unsigned int texture_count{
                 material->GetTextureCount(texture_type)};
             if (texture_count > 0) {
-              out << "Textures: " << material->GetTextureCount(texture_type)
-                  << "\n";
+              out << "Textures of type ( " << texture_type_string(texture_type)
+                  << " ): " << material->GetTextureCount(texture_type) << "\n";
               // All textures are 0. Why?
               // They were 0 because model didn't contain reference or
               // embedding of any texture.
@@ -109,7 +161,7 @@ void traverse(const aiScene *scene, std::ostream &out = std::cout) {
                 // assimp labels textures with '*1', '*2', etc.
                 // Example: https://github.com/assimp/assimp-net/issues/50
                 if (path.data[0] == '*') {
-                  out << "Texture (Embedded)\n";
+                  out << "Texture ( Embedded )\n";
 
                   const aiTexture *texture{
                       scene->GetEmbeddedTexture(path.C_Str())};
@@ -155,7 +207,7 @@ void traverse(const aiScene *scene, std::ostream &out = std::cout) {
                     out << "  - Decompressed\n";
                   }
                 } else {
-                  out << "  Texture (Referenced)\n";
+                  out << "  Texture ( Referenced )\n";
                 }
               }
             } else {
