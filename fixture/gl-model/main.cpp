@@ -96,16 +96,14 @@ void traverse(const aiScene *scene, std::ostream &out = std::cout) {
                   out << "  - Width: " << texture->mWidth << "\n";
                   out << "  - Height: " << texture->mHeight << "\n";
                   out << "  - Format hint: " << texture->achFormatHint << "\n";
-                  const bool is_compressed{texture->mHeight == 0};
-                  out << "  - "
-                      << (is_compressed ? "Compressed" : "Decompressed")
-                      << "\n";
 
                   // For reason unknown to me texture is compressed. We would
                   // use image library anyway to handle textures, I think.
-
+                  const bool is_compressed{texture->mHeight == 0};
                   // decompress texture
                   if (is_compressed) {
+                    out << "  - Compressed\n";
+
                     int width{}, height{}, channels{};
                     // Assimp documentation:
                     //
@@ -127,6 +125,8 @@ void traverse(const aiScene *scene, std::ostream &out = std::cout) {
                     } else {
                       out << "  Failed to decompress texture\n";
                     }
+                  } else {
+                    out << "  - Decompressed\n";
                   }
                 } else {
                   out << "  Texture (Referenced)\n";
