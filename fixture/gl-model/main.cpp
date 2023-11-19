@@ -96,6 +96,9 @@ void traverse(const aiScene *scene, std::ostream &out = std::cout) {
                   out << "  - "
                       << (is_compressed ? "Compressed" : "Decompressed")
                       << "\n";
+
+                  // To decompress the texture, use stb_image.h, we need it
+                  // anyway for working with textures.
                 }
               }
             } else {
