@@ -35,6 +35,27 @@ void traverse(const aiScene *scene, std::ostream &out = std::cout) {
             << " " << mesh->mNormals[j].z << "\n";
       }
 
+      out << "Texture coords:\n";
+      // retrieve texture coordinates for the current vertex
+      for (unsigned int textureCoordIdx{0};
+           textureCoordIdx < AI_MAX_NUMBER_OF_TEXTURECOORDS;
+           ++textureCoordIdx) {
+        if (mesh->HasTextureCoords(textureCoordIdx)) {
+          out << "  Texture coord: " << textureCoordIdx << "\n";
+          // retrieve uv coordinates for all vertices of the current texture
+          for (unsigned int vertexIdx{0}; vertexIdx < mesh->mNumVertices;
+               ++vertexIdx) {
+            out << "    - Coord (vertexIdx = " << vertexIdx
+                << "): " << mesh->mTextureCoords[textureCoordIdx][vertexIdx].x
+                << " " << mesh->mTextureCoords[textureCoordIdx][vertexIdx].y
+                << "\n";
+          }
+        } else {
+          // Possibly check when does this case occur as we don't handle it.
+          break; // Unlikely that there will be a next one.
+        }
+      }
+
       out << "Materials: " << scene->mNumMaterials << "\n";
 
       // https://stackoverflow.com/questions/8498300/allow-for-range-based-for-with-enum-classes
