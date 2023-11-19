@@ -91,6 +91,11 @@ void traverse(const aiScene *scene, std::ostream &out = std::cout) {
                   out << "  - Filename: " << texture->mFilename.C_Str() << "\n";
                   out << "  - Width: " << texture->mWidth << "\n";
                   out << "  - Height: " << texture->mHeight << "\n";
+                  out << "  - Format hint: " << texture->achFormatHint << "\n";
+                  const bool is_compressed{texture->mHeight == 0};
+                  out << "  - "
+                      << (is_compressed ? "Compressed" : "Decompressed")
+                      << "\n";
                 }
               }
             } else {
