@@ -3,6 +3,8 @@
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
 #include "assimp/types.h"
+#include "stb_image.h"
+
 #include <array>
 #include <functional>
 #include <iostream>
@@ -97,8 +99,33 @@ void traverse(const aiScene *scene, std::ostream &out = std::cout) {
                       << (is_compressed ? "Compressed" : "Decompressed")
                       << "\n";
 
-                  // To decompress the texture, use stb_image.h, we need it
-                  // anyway for working with textures.
+                  // For reason unknown to me texture is compressed. We would
+                  // use image library anyway to handle textures, I think.
+
+                  // decompress texture
+                  if (is_compressed) {
+                    int width{}, height{}, channels{};
+                    // Assimp documentation:
+                    //
+                    // If mHeight = 0 this is a pointer to a memory buffer of
+                    // size mWidth containing the compressed texture data. Good
+                    // luck, have fun!
+                    unsigned char *data{stbi_load_from_memory(
+                        reinterpret_cast<const stbi_uc *>(texture->pcData),
+                        texture->mWidth, &width, &height, &channels, 0)};
+
+                    if (data) {
+                      // We should be able to use texture data for rendering.
+
+                      out << "  Decompressed texture\n";
+                      out << "    - Width: " << width << "\n";
+                      out << "    - Height: " << height << "\n";
+                      out << "    - Channels: " << channels << "\n";
+                      stbi_image_free(data);
+                    } else {
+                      out << "  Failed to decompress texture\n";
+                    }
+                  }
                 }
               }
             } else {
