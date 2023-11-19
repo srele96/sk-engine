@@ -88,6 +88,8 @@ void traverse(const aiScene *scene, std::ostream &out = std::cout) {
                 // assimp labels textures with '*1', '*2', etc.
                 // Example: https://github.com/assimp/assimp-net/issues/50
                 if (path.data[0] == '*') {
+                  out << "Texture (Embedded)\n";
+
                   const aiTexture *texture{
                       scene->GetEmbeddedTexture(path.C_Str())};
                   out << "  - Filename: " << texture->mFilename.C_Str() << "\n";
@@ -126,6 +128,8 @@ void traverse(const aiScene *scene, std::ostream &out = std::cout) {
                       out << "  Failed to decompress texture\n";
                     }
                   }
+                } else {
+                  out << "  Texture (Referenced)\n";
                 }
               }
             } else {
