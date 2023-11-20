@@ -15,28 +15,6 @@ Setup documentation.
 
 Follow instructions from [Sandbox README.md](../../../sandbox/README.md) for more information. I don't see the need to copy-paste instructions.
 
-### Assimp flags
-
-Assimp is large and takes a long time to build. Goal is a fast dependency with minimal features that we need. [GitHub issue - Assimp build size](https://github.com/assimp/assimp/issues/424). I use Assimp because it supports many file formats. I might want to use some other format for experimentation purpose.
-
-Disable all importers so we can specify the ones we need explicitly.
-
-```txt
--DASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT=OFF
-```
-
-Disable all exports so we can specify the ones we need explicitly.
-
-```txt
--DASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT=OFF
-```
-
-Current plan is to use only gltf importer to render imported models.
-
-```txt
--DASSIMP_BUILD_GLTF_IMPORTER=ON
-```
-
 ### Build steps
 
 Generate project:
@@ -50,7 +28,7 @@ cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=C:\src\vcpkg\scripts\buildsystems\vcp
 On Linux(_do not use `x64-mingw-dynamic` triplet because it's not for linux._):
 
 ```terminal
-cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=~/vcpkg/scripts/buildsystems/vcpkg.cmake -DASSIMP_BUILD_GLTF_IMPORTER=ON -DASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT=OFF -DASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT=OFF
+cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=~/vcpkg/scripts/buildsystems/vcpkg.cmake
 ```
 
 Build:
