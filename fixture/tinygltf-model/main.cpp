@@ -24,6 +24,8 @@
 #include <iostream>
 
 // I need to understand gltf model structure to be able to render it.
+// 
+// https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#foreword
 //
 // https://github.com/KhronosGroup/glTF-Tutorials/blob/master/gltfTutorial/gltfTutorial_002_BasicGltfStructure.md
 
