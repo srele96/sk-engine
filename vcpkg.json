@@ -23,7 +23,8 @@
     {
       "name": "stb",
       "version>=": "2023-04-11#1"
-    }
+    },
+    "tinygltf"
   ],
   "builtin-baseline": "6d69bbacd2fbeae957f034dbbd2b454b5e3941fe"
 }
