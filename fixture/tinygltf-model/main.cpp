@@ -12,6 +12,9 @@
 //
 // https://github.com/syoyo/tinygltf#build-and-example
 // Define these only in *one* .cc file.
+//
+// Note: Includign stb_image might cause problems in combination with macros
+// below.
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -19,6 +22,10 @@
 
 #include <algorithm>
 #include <iostream>
+
+// I need to understand gltf model structure to be able to render it.
+//
+// https://github.com/KhronosGroup/glTF-Tutorials/blob/master/gltfTutorial/gltfTutorial_002_BasicGltfStructure.md
 
 int main() {
   // ----------------------------------------------------------------------------
@@ -71,40 +78,56 @@ int main() {
   std::cout << "Asset version: " << model.asset.version << "\n";
 
   std::function<void(const tinygltf::Node &, const tinygltf::Model &)>
-      process_node{
-          [&](const tinygltf::Node &node, const tinygltf::Model &model) {
-            std::cout << "Node name: " << node.name << "\n";
+      process_node{[&](const tinygltf::Node &node,
+                       const tinygltf::Model &model) {
+        std::cout << "Node name: " << node.name << "\n";
 
-            if (node.mesh >= 0) {
-              const tinygltf::Mesh &mesh = model.meshes[node.mesh];
+        if (node.mesh >= 0) {
+          const tinygltf::Mesh &mesh = model.meshes[node.mesh];
 
-              std::cout << "Node Mesh ( name = " << mesh.name
-                        << ", idx = " << node.mesh << " ):\n";
+          std::cout << "Node Mesh ( name = " << mesh.name
+                    << ", idx = " << node.mesh << " ):\n";
 
-              for (const tinygltf::Primitive &primitive : mesh.primitives) {
-                std::cout << "Primitive\n";
+          for (const tinygltf::Primitive &primitive : mesh.primitives) {
+            std::cout << "Primitive\n";
 
-                for (const auto &attrib : primitive.attributes) {
-                  std::cout << "Attribute: " << attrib.first << "\n";
-                }
+            for (const auto &[name, idx] : primitive.attributes) {
+              std::cout << "Attribute: " << name << "\n";
 
-                if (primitive.indices >= 0) {
-                  const tinygltf::Accessor &accessor =
-                      model.accessors[primitive.indices];
+              const tinygltf::Accessor &vertexAccessor{model.accessors[idx]};
+              const tinygltf::BufferView &bufferView{
+                  model.bufferViews[vertexAccessor.bufferView]};
+              const tinygltf::Buffer &buffer{model.buffers[bufferView.buffer]};
+              const float *vertexData{reinterpret_cast<const float *>(
+                  &buffer.data[bufferView.byteOffset +
+                               vertexAccessor.byteOffset])};
 
-                  std::cout << "Indices count: " << accessor.count << "\n";
-                }
+              std::cout << "Vertex count: " << vertexAccessor.count << "\n";
+
+              for (int i = 0; i < vertexAccessor.count; ++i) {
+                std::cout << "Vertex " << i << ": " << vertexData[i * 3 + 0]
+                          << ", " << vertexData[i * 3 + 1] << ", "
+                          << vertexData[i * 3 + 2] << "\n";
               }
             }
 
-            std::cout << "Node ( children = " << node.children.size() << " )\n";
+            if (primitive.indices >= 0) {
+              const tinygltf::Accessor &accessor =
+                  model.accessors[primitive.indices];
 
-            for (const int idx : node.children) {
-              const tinygltf::Node &child = model.nodes[idx];
-
-              process_node(child, model);
+              std::cout << "Indices count: " << accessor.count << "\n";
             }
-          }};
+          }
+        }
+
+        std::cout << "Node ( children = " << node.children.size() << " )\n";
+
+        for (const int idx : node.children) {
+          const tinygltf::Node &child = model.nodes[idx];
+
+          process_node(child, model);
+        }
+      }};
 
   for (const tinygltf::Scene &scene : model.scenes) {
     for (const int idx : scene.nodes) {
