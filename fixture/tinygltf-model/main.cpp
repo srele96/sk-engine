@@ -78,7 +78,8 @@ int main() {
             if (node.mesh >= 0) {
               const tinygltf::Mesh &mesh = model.meshes[node.mesh];
 
-              std::cout << "Mesh name: " << mesh.name << "\n";
+              std::cout << "Node Mesh ( name = " << mesh.name
+                        << ", idx = " << node.mesh << " ):\n";
 
               for (const tinygltf::Primitive &primitive : mesh.primitives) {
                 std::cout << "Primitive\n";
@@ -95,6 +96,8 @@ int main() {
                 }
               }
             }
+
+            std::cout << "Node ( children = " << node.children.size() << " )\n";
 
             for (const int idx : node.children) {
               const tinygltf::Node &child = model.nodes[idx];
