@@ -20,14 +20,32 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "tiny_gltf.h"
 
+#include "GLAD/glad.h"
+#include "GLFW/glfw3.h"
+
 #include <algorithm>
 #include <iostream>
+#include <vector>
 
 // I need to understand gltf model structure to be able to render it.
-// 
+//
 // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#foreword
 //
 // https://github.com/KhronosGroup/glTF-Tutorials/blob/master/gltfTutorial/gltfTutorial_002_BasicGltfStructure.md
+
+// handle window resize event
+
+static void framebuffer_size_callback(GLFWwindow *window, int width,
+                                      int height) {
+  glViewport(0, 0, width, height);
+}
+
+static void key_callback(GLFWwindow *window, int key, int scancode, int action,
+                         int mods) {
+  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+    glfwSetWindowShouldClose(window, GLFW_TRUE);
+  }
+}
 
 int main() {
   // ----------------------------------------------------------------------------
@@ -138,6 +156,234 @@ int main() {
       process_node(node, model);
     }
   }
+
+  if (glfwInit() == GLFW_FALSE) {
+    std::cout << "Failed to initialize GLFW\n";
+    return -1;
+  }
+
+  GLFWwindow *window{
+      glfwCreateWindow(800, 600, "GLFW Window", nullptr, nullptr)};
+
+  if (window == nullptr) {
+    std::cout << "Failed to create GLFW window\n";
+    glfwTerminate();
+    return -1;
+  }
+
+  glfwMakeContextCurrent(window);
+
+  glfwSetKeyCallback(window, key_callback);
+  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+  if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
+    std::cout << "Failed to initialize GLAD\n";
+    glfwTerminate();
+    return -1;
+  }
+
+  glViewport(0, 0, 800, 600);
+
+  // All of a sudden thinking about vertices, data, shaders, buffers, is not so
+  // foreign to me.
+
+  // - For a vertex store position, color
+  // - I would like to store the normal, find out how to get normal, do i have
+  //   to calculate it, can i calculate it from vertex data, i just want to have
+  //   normal along with position to draw normals as lines
+  //
+
+  // - create vertex array object
+  // - create vertex buffer object
+  // - create element buffer object
+
+  // I wonder if i should see shaders as reusable modules, functions, etc... Can
+  // i make shaders sound like some familiar concept that I like?
+  // - Advice from competitive programmer, make problem sound like something i
+  //   like. I like something familiar, easy to deal with, already know how to
+  //   solve it.
+
+  GLuint vao;
+  glGenVertexArrays(1, &vao);
+
+  // Is it possible to create N vertex arrays? Find some use case for it.
+
+  GLuint vbo;
+  glGenBuffers(1, &vbo);
+
+  GLuint ebo;
+  glGenBuffers(1, &ebo);
+
+  // clang-format off
+  std::vector<GLfloat> data{
+      // left bottom back
+      -0.5f, -0.5f, 0.5f,
+      // orange
+      1.0f, 0.0f, 0.0f,
+      // right bottom back
+      0.5f, -0.5f, 0.5f,
+      // green
+      0.0f, 1.0f, 0.0f,
+      // center bottom front
+      0.0f, 0.0f, -0.5f,
+      // blue
+      0.0f, 0.0f, 1.0f,
+      // center up center
+      0.0f, 0.5f, 0.0f,
+      // yellow
+      1.0f, 1.0f, 0.0f
+  };
+  // clang-format on
+
+  // clang-format off
+  std::vector<GLuint> indices{
+      // back face
+      0, 1, 3,
+      // left face
+      0, 2, 3,
+      // right face
+      0, 1, 2,
+      // bottom face
+      1, 2, 3
+  };
+  // clang-format on
+
+  // To be able to see this pyramid i would need to move camera back, because
+  // the camera is initially on (0, 0, 0) position.
+  //
+  // I should implement camera movement with keyboard and mouse to observe the
+  // pyramid from different angles.
+
+  // Vertex array has to be bound before binding buffers. I was receiving
+  // segmentation fault because I called it after binding and passing data to
+  // vertex buffer object and element buffer object.
+  // It seems that I have to bind vertex array before passing data to element
+  // buffer object. Why? If I bind vertex array before passing data to ebo, it
+  // works. If I bind after passing data to ebo I get segfault. Why?
+  glBindVertexArray(vao);
+
+  // pass data to vbo
+  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(GLfloat), data.data(),
+               GL_STATIC_DRAW);
+  // Find a scenario where I need some other draw than GL_STATIC_DRAW. Then
+  // practice that draw type.
+
+  // pass indices to ebo
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint),
+               indices.data(), GL_STATIC_DRAW);
+
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat),
+                        reinterpret_cast<void *>(0));
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat),
+                        reinterpret_cast<void *>(3 * sizeof(GLfloat)));
+  glEnableVertexAttribArray(1);
+
+  const GLchar *vs_src{R"(
+#version 330 core
+
+layout (location = 0) in vec3 pos;
+layout (location = 1) in vec3 color;
+
+out vec3 vertex_color;
+
+void main() {
+  gl_Position = vec4(pos.x, pos.y, pos.z, 1.0);
+  vertex_color = color;
+}
+)"};
+
+  const GLchar *fs_src{R"(
+#version 330 core
+
+in vec3 vertex_color;
+
+out vec4 frag_color;
+
+void main() {
+  frag_color = vec4(vertex_color.xyz, 1.0);
+}
+)"};
+
+  GLuint vs{glCreateShader(GL_VERTEX_SHADER)};
+  glShaderSource(vs, 1, &vs_src, nullptr);
+  glCompileShader(vs);
+
+  {
+    GLint success;
+    GLchar info_log[512];
+    glGetShaderiv(vs, GL_COMPILE_STATUS, &success);
+    if (success) {
+      std::cout << "Vertex shader compiled successfully\n";
+    } else {
+      glGetShaderInfoLog(vs, 512, nullptr, info_log);
+      std::cerr << "Failed to compile vertex shader\n" << info_log << "\n";
+    }
+  }
+
+  GLuint fs{glCreateShader(GL_FRAGMENT_SHADER)};
+  glShaderSource(fs, 1, &fs_src, nullptr);
+  glCompileShader(fs);
+
+  {
+    GLint success;
+    GLchar info_log[512];
+    glGetShaderiv(fs, GL_COMPILE_STATUS, &success);
+    if (success) {
+      std::cout << "Fragment shader compiled successfully\n";
+    } else {
+      glGetShaderInfoLog(fs, 512, nullptr, info_log);
+      std::cerr << "Failed to compile fragment shader\n" << info_log << "\n";
+    }
+  }
+
+  GLuint program{glCreateProgram()};
+  glAttachShader(program, vs);
+  glAttachShader(program, fs);
+  glLinkProgram(program);
+
+  {
+    GLint success;
+    GLchar info_log[512];
+    glGetProgramiv(program, GL_LINK_STATUS, &success);
+    if (success) {
+      std::cout << "Program linked successfully\n";
+    } else {
+      glGetProgramInfoLog(program, 512, nullptr, info_log);
+      std::cerr << "Failed to link program\n" << info_log << "\n";
+    }
+  }
+
+  glUseProgram(program);
+
+  {
+    // Do I need this line? Yes, I do.
+    // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glValidateProgram.xhtml
+    glValidateProgram(program);
+
+    GLint success;
+    GLchar info_log[512];
+    glGetProgramiv(program, GL_VALIDATE_STATUS, &success);
+    if (success) {
+      std::cout << "Program validated successfully\n";
+    } else {
+      glGetProgramInfoLog(program, 512, nullptr, info_log);
+      std::cerr << "Failed to validate program\n" << info_log << "\n";
+    }
+  }
+
+  // draw
+  glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+
+  while (!glfwWindowShouldClose(window)) {
+
+    glfwSwapBuffers(window);
+    glfwPollEvents();
+  }
+
+  // unbind buffers
 
   return 0;
 }

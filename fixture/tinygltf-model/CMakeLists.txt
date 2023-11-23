@@ -1,16 +1,18 @@
-cmake_minimum_required(VERSION 3.20)
-
 set(TINYGLTF_MODEL "tinygltf-model")
-
-project(
-  ${TINYGLTF_MODEL}
-  VERSION 0.1.0
-  LANGUAGES CXX
-)
 
 add_executable(
   ${TINYGLTF_MODEL}
-  main.cpp
+
+  # Build implementation along with our executable
+  ${PROJECT_SOURCE_DIR}/include/GLAD/glad.c
+
+  ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+)
+
+target_include_directories(
+  ${TINYGLTF_MODEL}
+  PRIVATE
+  ${PROJECT_SOURCE_DIR}/include
 )
 
 # tinygltf is available by default due to nature of cmake and vcpkg integration

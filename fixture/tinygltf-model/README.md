@@ -6,6 +6,12 @@ I immediately noticed there are no UV flipping and triangulation features.
 
 That means I would need to handle them while I have no clue about either of the two at the moment.
 
+## Issue commands through command line interface to a custom renderer
+
+An idea is to implement client and server side. A client side to issue commands through a command line interface to a server side that relays events to the client that listens for events and draws in response to events.
+
+That situation simulates remote rendering.
+
 ## Decision
 
 I think between the two, I would go with assimp.
