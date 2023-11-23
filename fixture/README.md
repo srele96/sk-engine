@@ -1,3 +1,3 @@
 # Fixture
 
-Somewhat minimalistic example of something that came to my mind, i think...
+A fixture helps me understand complex concepts in an isolated environment and build an idea of how to integrate that concept into the rendering engine.
