@@ -23,6 +23,11 @@
 #include "GLAD/glad.h"
 #include "GLFW/glfw3.h"
 
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/quaternion.hpp"
+#include "glm/gtc/type_ptr.hpp"
+
 #include <algorithm>
 #include <iostream>
 #include <vector>
@@ -32,8 +37,6 @@
 // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#foreword
 //
 // https://github.com/KhronosGroup/glTF-Tutorials/blob/master/gltfTutorial/gltfTutorial_002_BasicGltfStructure.md
-
-// handle window resize event
 
 static void framebuffer_size_callback(GLFWwindow *window, int width,
                                       int height) {
@@ -284,13 +287,15 @@ int main() {
   const GLchar *vs_src{R"(
 #version 330 core
 
+uniform mat4 rotation;
+
 layout (location = 0) in vec3 pos;
 layout (location = 1) in vec3 color;
 
 out vec3 vertex_color;
 
 void main() {
-  gl_Position = vec4(pos.x, pos.y, pos.z, 1.0);
+  gl_Position = rotation * vec4(pos.x, pos.y, pos.z, 1.0);
   vertex_color = color;
 }
 )"};
@@ -374,10 +379,65 @@ void main() {
 
   glUseProgram(program);
 
-  // draw
-  glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+  double last_frame_time{glfwGetTime()};
+
+  const float deg_0{0.0f};
+  const float deg_15{15.0f};
+
+  float a_deg_x{0.0f};
+  float a_deg_z{0.0f};
+
+  float b_deg_x{0.0f};
+  float b_deg_z{0.0f};
 
   while (!glfwWindowShouldClose(window)) {
+    const double delta_time = glfwGetTime() - last_frame_time;
+    last_frame_time = glfwGetTime();
+
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glEnable(GL_DEPTH_TEST);
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    {
+      a_deg_x += deg_0 * static_cast<float>(delta_time);
+      a_deg_z += deg_15 * static_cast<float>(delta_time);
+
+      glm::quat rotate_x{
+          glm::angleAxis(glm::radians(a_deg_x), glm::vec3(1.0f, 0.0f, 0.0f))};
+      glm::quat rotate_z{
+          glm::angleAxis(glm::radians(a_deg_z), glm::vec3(0.0f, 0.0f, 1.0f))};
+      glm::quat quat{rotate_x * rotate_z};
+
+      glm::mat4 rotation_matrix{quat};
+
+      GLint rotationLocation = glGetUniformLocation(program, "rotation");
+      glUniformMatrix4fv(rotationLocation, 1, GL_FALSE,
+                         glm::value_ptr(rotation_matrix));
+
+      glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    }
+
+    // Can I draw the same thing again with different rotation?
+
+    {
+      b_deg_x += deg_15 * static_cast<float>(delta_time);
+      b_deg_z += deg_15 * static_cast<float>(delta_time);
+
+      glm::quat rotate_x{
+          glm::angleAxis(glm::radians(b_deg_x), glm::vec3(1.0f, 0.0f, 0.0f))};
+      glm::quat rotate_z{
+          glm::angleAxis(glm::radians(b_deg_z), glm::vec3(0.0f, 0.0f, 1.0f))};
+      glm::quat quat{rotate_x * rotate_z};
+
+      glm::mat4 rotation_matrix{quat};
+
+      GLint rotationLocation = glGetUniformLocation(program, "rotation");
+      glUniformMatrix4fv(rotationLocation, 1, GL_FALSE,
+                         glm::value_ptr(rotation_matrix));
+
+      glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    }
 
     glfwSwapBuffers(window);
     glfwPollEvents();

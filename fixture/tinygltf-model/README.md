@@ -1,9 +1,5 @@
 # tinygltf model
 
-This damn thing got me hyped:
-
-![pyramid](./pyramid.png)
-
 Import the model using tinygltf to see explore the alternative.
 
 I immediately noticed there are no UV flipping and triangulation features.
@@ -27,3 +23,25 @@ Computer graphics is simply storing, loading, modifying, and more of vertex data
 However the thought of that excites me!
 
 See as many angles as possible!
+
+## Conclusion on how to learn OpenGL
+
+- Solve many problems using OpenGL.
+- Create a lot of software using OpenGL.
+- Use every OpenGL:
+  - method
+  - function
+  - mathematical equation
+- think of problems that OpenGL can solve, and solve them using OpenGL.
+- Create something worthy.
+- I want to create renderer that I can control through command line interface using a server and client architecture.
+
+## Pictures
+
+This damn thing got me hyped:
+
+![pyramid](./pyramid.png)
+
+![two pyramids](./two-pyramids.png)
+
+![two pyramids rotate](./two-pyramids-rotate.png)
