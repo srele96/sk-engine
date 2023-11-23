@@ -50,6 +50,24 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action,
   }
 }
 
+class delta {
+private:
+  double m_last_frame_time{glfwGetTime()};
+  double m_delta_time{delta::initial_delta_time};
+
+public:
+  const static double initial_delta_time{0.0};
+
+  double delta_time() const { return m_delta_time; }
+
+  void update() {
+    const double current_frame_time{glfwGetTime()};
+    const double delta_time{current_frame_time - m_last_frame_time};
+    m_delta_time = delta_time;
+    m_last_frame_time = current_frame_time;
+  }
+};
+
 int main() {
   // ----------------------------------------------------------------------------
   // Two points:
@@ -379,7 +397,7 @@ void main() {
 
   glUseProgram(program);
 
-  double last_frame_time{glfwGetTime()};
+  delta delta_;
 
   const float deg_0{0.0f};
   const float deg_15{15.0f};
@@ -391,8 +409,7 @@ void main() {
   float b_deg_z{0.0f};
 
   while (!glfwWindowShouldClose(window)) {
-    const double delta_time = glfwGetTime() - last_frame_time;
-    last_frame_time = glfwGetTime();
+    delta_.update();
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
@@ -400,8 +417,8 @@ void main() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     {
-      a_deg_x += deg_0 * static_cast<float>(delta_time);
-      a_deg_z += deg_15 * static_cast<float>(delta_time);
+      a_deg_x += deg_0 * static_cast<float>(delta_.delta_time());
+      a_deg_z += deg_15 * static_cast<float>(delta_.delta_time());
 
       glm::quat rotate_x{
           glm::angleAxis(glm::radians(a_deg_x), glm::vec3(1.0f, 0.0f, 0.0f))};
@@ -421,8 +438,8 @@ void main() {
     // Can I draw the same thing again with different rotation?
 
     {
-      b_deg_x += deg_15 * static_cast<float>(delta_time);
-      b_deg_z += deg_15 * static_cast<float>(delta_time);
+      b_deg_x += deg_15 * static_cast<float>(delta_.delta_time());
+      b_deg_z += deg_15 * static_cast<float>(delta_.delta_time());
 
       glm::quat rotate_x{
           glm::angleAxis(glm::radians(b_deg_x), glm::vec3(1.0f, 0.0f, 0.0f))};
