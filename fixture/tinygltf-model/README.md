@@ -40,8 +40,12 @@ See as many angles as possible!
 
 This damn thing got me hyped:
 
-![pyramid](./pyramid.png)
+![pyramid](./picture/pyramid.png)
 
-![two pyramids](./two-pyramids.png)
+![two pyramids](./picture/two-pyramids.png)
 
-![two pyramids rotate](./two-pyramids-rotate.png)
+![two pyramids rotate](./picture/two-pyramids-rotate.png)
+
+## How do I come up with this?
+
+See [conversation](./conversation/) with ChatGPT on what questions I ask and how I respond to his queries.
