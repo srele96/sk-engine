@@ -1,5 +1,9 @@
 # tinygltf model
 
+This damn thing got me hyped:
+
+![pyramid](./pyramid.png)
+
 Import the model using tinygltf to see explore the alternative.
 
 I immediately noticed there are no UV flipping and triangulation features.
