@@ -356,13 +356,11 @@ void main() {
     }
   }
 
-  glUseProgram(program);
+  // Do I need this line? Yes, I do.
+  // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glValidateProgram.xhtml
+  glValidateProgram(program);
 
   {
-    // Do I need this line? Yes, I do.
-    // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glValidateProgram.xhtml
-    glValidateProgram(program);
-
     GLint success;
     GLchar info_log[512];
     glGetProgramiv(program, GL_VALIDATE_STATUS, &success);
@@ -373,6 +371,8 @@ void main() {
       std::cerr << "Failed to validate program\n" << info_log << "\n";
     }
   }
+
+  glUseProgram(program);
 
   // draw
   glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
