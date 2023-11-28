@@ -56,7 +56,7 @@ private:
   double m_delta_time{delta::initial_delta_time};
 
 public:
-  const static double initial_delta_time{0.0};
+  constexpr static double initial_delta_time{0.0};
 
   double delta_time() const { return m_delta_time; }
 

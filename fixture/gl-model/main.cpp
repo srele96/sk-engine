@@ -3,6 +3,10 @@
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
 #include "assimp/types.h"
+
+// Fixes:
+// undefined reference to `stbi_load_from_memory'
+#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 #include <array>
