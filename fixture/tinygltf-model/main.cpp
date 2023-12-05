@@ -38,37 +38,7 @@
 //
 // https://github.com/KhronosGroup/glTF-Tutorials/blob/master/gltfTutorial/gltfTutorial_002_BasicGltfStructure.md
 
-static void framebuffer_size_callback(GLFWwindow *window, int width,
-                                      int height) {
-  glViewport(0, 0, width, height);
-}
-
-static void key_callback(GLFWwindow *window, int key, int scancode, int action,
-                         int mods) {
-  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-    glfwSetWindowShouldClose(window, GLFW_TRUE);
-  }
-}
-
-class delta {
-private:
-  double m_last_frame_time{glfwGetTime()};
-  double m_delta_time{delta::initial_delta_time};
-
-public:
-  constexpr static double initial_delta_time{0.0};
-
-  double delta_time() const { return m_delta_time; }
-
-  void update() {
-    const double current_frame_time{glfwGetTime()};
-    const double delta_time{current_frame_time - m_last_frame_time};
-    m_delta_time = delta_time;
-    m_last_frame_time = current_frame_time;
-  }
-};
-
-int main() {
+void explore_tinygltf_model_loading() {
   // ----------------------------------------------------------------------------
   // Two points:
   //
@@ -106,12 +76,11 @@ int main() {
   }
 
   if (!err.empty()) {
-    std::cout << "Err: " << err << "\n";
+    throw std::runtime_error(err);
   }
 
   if (!ret) {
-    std::cout << "Failed to parse glTF\n";
-    return -1;
+    throw std::runtime_error("Failed to load glTF");
   }
 
   std::cout << "Loaded glTF\n";
@@ -176,6 +145,44 @@ int main() {
 
       process_node(node, model);
     }
+  }
+}
+
+static void framebuffer_size_callback(GLFWwindow *window, int width,
+                                      int height) {
+  glViewport(0, 0, width, height);
+}
+
+static void key_callback(GLFWwindow *window, int key, int scancode, int action,
+                         int mods) {
+  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+    glfwSetWindowShouldClose(window, GLFW_TRUE);
+  }
+}
+
+class delta {
+private:
+  double m_last_frame_time{glfwGetTime()};
+  double m_delta_time{delta::initial_delta_time};
+
+public:
+  constexpr static double initial_delta_time{0.0};
+
+  double delta_time() const { return m_delta_time; }
+
+  void update() {
+    const double current_frame_time{glfwGetTime()};
+    const double delta_time{current_frame_time - m_last_frame_time};
+    m_delta_time = delta_time;
+    m_last_frame_time = current_frame_time;
+  }
+};
+
+int main() {
+  try {
+    explore_tinygltf_model_loading();
+  } catch (const std::exception &e) {
+    std::cerr << e.what() << "\n";
   }
 
   if (glfwInit() == GLFW_FALSE) {
